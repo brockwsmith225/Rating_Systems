@@ -10,7 +10,7 @@ This Python module defines
 
 ### Rating Systems
 
-Rating Systems are created using the [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem class.
+Rating Systems are created using the [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) class.
 
 
 ### Predictors

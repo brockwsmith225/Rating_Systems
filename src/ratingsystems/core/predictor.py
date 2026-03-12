@@ -83,6 +83,9 @@ class AggregatePredictor():
 
 class RatingDifferencePredictor(Predictor):
 
+    class Meta:
+        name: str = "diff"
+
     def predict(self, team: str, opponent: str) -> Prediction:
         line = (self.rating.get_value(team) - self.rating.get_value(opponent))
         return Prediction(

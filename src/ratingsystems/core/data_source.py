@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict
 from typing import Type
 
-from ratingsystems.core.model import Game, GameStat
+from ratingsystems.core.model import Game, GameStats
 from ratingsystems.core.util import config_path
 
 
@@ -109,4 +109,4 @@ class DataSource(ABC):
 
     class Meta:
         name: str = ""
-        stats_class: Type = GameStat
+        stats_class: Type = GameStats

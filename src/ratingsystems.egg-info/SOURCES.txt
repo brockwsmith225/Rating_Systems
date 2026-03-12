@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 src/ratingsystems/__init__.py
 src/ratingsystems.egg-info/PKG-INFO

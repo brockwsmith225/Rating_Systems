@@ -2,57 +2,20 @@ loaders:
   - type: python
     search_path:
       - src
+    packages:
+      - ratingsystems
     # modules:
     #   - ratingsystems
+    #   - ratingsystems.RatingSystem
 
 processors:
   - type: filter
     expression: not name.startswith("_")
+    documented_only: true
   - type: smart
   - type: crossref
 
 renderer:
-  # type: markdown
-  # filename: docs.md
-  # render_toc: true
-  type: mkdocs
-  output_directory: docs
-  markdown:
-    descriptive_class_title: false
-  pages:
-    - title: DataSource
-      name: datasource
-      contents:
-        - ratingsystems.core.data_source.DataSource*
-    - title: RatingSystem
-      name: ratingsystem
-      contents:
-        - ratingsystems.core.rating_system.RatingSystem*
-    - title: Predictor
-      name: predictor
-      contents:
-        - ratingsystems.core.predictor.Predictor*
-    - title: Game
-      name: game
-      contents:
-        - ratingsystems.core.model.game.Game*
-    - title: GameStats
-      name: gamestats
-      contents:
-        - ratingsystems.core.model.game.GameStats*
-    - title: Prediction
-      name: prediction
-      contents:
-        - ratingsystems.core.model.prediction.Prediction*
-    - title: Rating
-      name: rating
-      contents:
-        - ratingsystems.core.model.rating.Rating*
-    - title: Stat
-      name: stat
-      contents:
-        - ratingsystems.core.model.stat.Stat*
-    - title: TeamRating
-      name: team_rating
-      contents:
-        - ratingsystems.core.model.team_rating.TeamRating*
+  type: markdown
+  filename: docs.md
+  render_toc: true

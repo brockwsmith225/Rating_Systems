@@ -111,20 +111,16 @@
   * [cbb\_bracket](#ratingsystems.core.cli.__main__.cbb_bracket)
   * [cbb\_test](#ratingsystems.core.cli.__main__.cbb_test)
 * [ratingsystems.core.data\_source](#ratingsystems.core.data_source)
-  * [cbbd](#ratingsystems.core.data_source.cbbd)
   * [json](#ratingsystems.core.data_source.json)
   * [os](#ratingsystems.core.data_source.os)
   * [ABC](#ratingsystems.core.data_source.ABC)
   * [abstractmethod](#ratingsystems.core.data_source.abstractmethod)
   * [asdict](#ratingsystems.core.data_source.asdict)
-  * [datetime](#ratingsystems.core.data_source.datetime)
   * [Type](#ratingsystems.core.data_source.Type)
   * [Game](#ratingsystems.core.data_source.Game)
-  * [GameStats](#ratingsystems.core.data_source.GameStats)
-  * [Stat](#ratingsystems.core.data_source.Stat)
+  * [GameStat](#ratingsystems.core.data_source.GameStat)
   * [config\_path](#ratingsystems.core.data_source.config_path)
   * [DataSource](#ratingsystems.core.data_source.DataSource)
-    * [Meta](#ratingsystems.core.data_source.DataSource.Meta)
     * [cli](#ratingsystems.core.data_source.DataSource.cli)
     * [fetch](#ratingsystems.core.data_source.DataSource.fetch)
     * [data\_dir](#ratingsystems.core.data_source.DataSource.data_dir)
@@ -133,6 +129,7 @@
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
     * [save](#ratingsystems.core.data_source.DataSource.save)
     * [load](#ratingsystems.core.data_source.DataSource.load)
+    * [Meta](#ratingsystems.core.data_source.DataSource.Meta)
 * [ratingsystems.core.model.bracket](#ratingsystems.core.model.bracket)
   * [dataclass](#ratingsystems.core.model.bracket.dataclass)
   * [Any](#ratingsystems.core.model.bracket.Any)
@@ -256,8 +253,8 @@
   * [Prediction](#ratingsystems.core.predictor.Prediction)
   * [Rating](#ratingsystems.core.predictor.Rating)
   * [Predictor](#ratingsystems.core.predictor.Predictor)
-    * [Meta](#ratingsystems.core.predictor.Predictor.Meta)
     * [predict](#ratingsystems.core.predictor.Predictor.predict)
+    * [Meta](#ratingsystems.core.predictor.Predictor.Meta)
   * [AggregatePredictor](#ratingsystems.core.predictor.AggregatePredictor)
     * [predict](#ratingsystems.core.predictor.AggregatePredictor.predict)
   * [RatingDifferencePredictor](#ratingsystems.core.predictor.RatingDifferencePredictor)
@@ -271,8 +268,8 @@
   * [Game](#ratingsystems.core.rating_system.Game)
   * [Rating](#ratingsystems.core.rating_system.Rating)
   * [RatingSystem](#ratingsystems.core.rating_system.RatingSystem)
-    * [Meta](#ratingsystems.core.rating_system.RatingSystem.Meta)
     * [rate](#ratingsystems.core.rating_system.RatingSystem.rate)
+    * [Meta](#ratingsystems.core.rating_system.RatingSystem.Meta)
 * [ratingsystems.core.util.file](#ratingsystems.core.util.file)
   * [os](#ratingsystems.core.util.file.os)
   * [config\_path](#ratingsystems.core.util.file.config_path)
@@ -978,9 +975,14 @@ def cbb_test(fetch_data=True)
 
 # ratingsystems.core.data\_source
 
-<a id="ratingsystems.core.data_source.cbbd"></a>
+Defines a data source, which can be used to fetch data for a sport.
 
-## cbbd
+A data source can be used by calling the [`DataSource.fetch`](#ratingsystems.core.data_source.DataSource.fetch) function. This will return a list of [`Game`](#ratingsystems.core.data_source.Game).
+
+This is also exposed via the CLI command `fetch`, which can be called like this:
+```bash
+ratingsystems fetch --data <datasource>
+```
 
 <a id="ratingsystems.core.data_source.json"></a>
 
@@ -1002,10 +1004,6 @@ def cbb_test(fetch_data=True)
 
 ## asdict
 
-<a id="ratingsystems.core.data_source.datetime"></a>
-
-## datetime
-
 <a id="ratingsystems.core.data_source.Type"></a>
 
 ## Type
@@ -1014,13 +1012,9 @@ def cbb_test(fetch_data=True)
 
 ## Game
 
-<a id="ratingsystems.core.data_source.GameStats"></a>
+<a id="ratingsystems.core.data_source.GameStat"></a>
 
-## GameStats
-
-<a id="ratingsystems.core.data_source.Stat"></a>
-
-## Stat
+## GameStat
 
 <a id="ratingsystems.core.data_source.config_path"></a>
 
@@ -1033,22 +1027,6 @@ def cbb_test(fetch_data=True)
 ```python
 class DataSource(ABC)
 ```
-
-<a id="ratingsystems.core.data_source.DataSource.Meta"></a>
-
-## Meta Objects
-
-```python
-class Meta()
-```
-
-<a id="ratingsystems.core.data_source.DataSource.Meta.name"></a>
-
-#### name
-
-<a id="ratingsystems.core.data_source.DataSource.Meta.stats_class"></a>
-
-#### stats\_class
 
 <a id="ratingsystems.core.data_source.DataSource.cli"></a>
 
@@ -1118,6 +1096,22 @@ def save(games: list[Game])
 ```python
 def load(incomplete: bool = True) -> list[Game]
 ```
+
+<a id="ratingsystems.core.data_source.DataSource.Meta"></a>
+
+## Meta Objects
+
+```python
+class Meta()
+```
+
+<a id="ratingsystems.core.data_source.DataSource.Meta.name"></a>
+
+#### name
+
+<a id="ratingsystems.core.data_source.DataSource.Meta.stats_class"></a>
+
+#### stats\_class
 
 <a id="ratingsystems.core.model.bracket"></a>
 
@@ -1688,6 +1682,15 @@ def combine(*ratings, rating: Optional[Stat] = None, **sub_ratings)
 
 # ratingsystems.core.predictor
 
+Defines a predictor, which can be used to predict a matchup between two teams.
+
+A predictor can be used by calling the [`Predictor.predict`](#ratingsystems.core.predictor.Predictor.predict) function with a team and an opponent. This will return a [`Prediction`](#ratingsystems.core.predictor.Prediction) of the matchup.
+
+This is also exposed via the CLI command `predict`, which can be called like this:
+```bash
+ratingsystems predict --data <datasource> --rating <ratingsystem> --predictor <predictor> TEAM OPPONENT
+```
+
 <a id="ratingsystems.core.predictor.st"></a>
 
 ## st
@@ -1732,6 +1735,23 @@ def combine(*ratings, rating: Optional[Stat] = None, **sub_ratings)
 class Predictor(ABC)
 ```
 
+Abstract class used to create a predictor.
+
+Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) must implement a [`predict`](#ratingsystems.core.predictor.Predictor.predict) method which takes as input a team and an opponent and returns a [`Prediction`](#ratingsystems.core.predictor.Prediction) object.
+
+Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) must also implement a [`Meta`](#ratingsystems.core.predictor.Predictor.Meta) class. See [`Meta`](#ratingsystems.core.predictor.Predictor.Meta) class below for more details.
+
+Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) can accept any options to __init__, but they must have a default value, and it must accept a [`Rating`](#ratingsystems.core.predictor.Rating) as its first argument.
+
+<a id="ratingsystems.core.predictor.Predictor.predict"></a>
+
+#### predict
+
+```python
+@abstractmethod
+def predict(team: str, opponent: str) -> Prediction
+```
+
 <a id="ratingsystems.core.predictor.Predictor.Meta"></a>
 
 ## Meta Objects
@@ -1743,15 +1763,6 @@ class Meta()
 <a id="ratingsystems.core.predictor.Predictor.Meta.name"></a>
 
 #### name
-
-<a id="ratingsystems.core.predictor.Predictor.predict"></a>
-
-#### predict
-
-```python
-@abstractmethod
-def predict(team: str, opponent: str) -> Prediction
-```
 
 <a id="ratingsystems.core.predictor.AggregatePredictor"></a>
 
@@ -1788,6 +1799,15 @@ def predict(team: str, opponent: str) -> Prediction
 <a id="ratingsystems.core.rating_system"></a>
 
 # ratingsystems.core.rating\_system
+
+Defines a rating system, which can be used to create a rating of teams.
+
+A rating system can be used by calling the [`RatingSystem.rate`](#ratingsystems.core.rating_system.RatingSystem.rate) function with a list of [`Game`](#ratingsystems.core.rating_system.Game). This will return a [`Rating`](#ratingsystems.core.rating_system.Rating) of the teams.
+
+This is also exposed via the CLI command `rate`, which can be called like this:
+```bash
+ratingsystems rate --data <datasource> --rating <ratingsystem>
+```
 
 <a id="ratingsystems.core.rating_system.ABC"></a>
 
@@ -1827,20 +1847,11 @@ class RatingSystem(ABC)
 
 Abstract class used to create a rating system.
 
-Classes that inherit from RatingSystem must implement a rate method
-which takes as input a list of Game objects and returns a Rating object.
+Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) must implement a [`rate`](#ratingsystems.core.rating_system.RatingSystem.rate) method which takes as input a list of [`Game`](#ratingsystems.core.rating_system.Game) objects and returns a [`Rating`](#ratingsystems.core.rating_system.Rating) object.
 
-<a id="ratingsystems.core.rating_system.RatingSystem.Meta"></a>
+Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) must also implement a [`Meta`](#ratingsystems.core.rating_system.RatingSystem.Meta) class. See [`Meta`](#ratingsystems.core.rating_system.RatingSystem.Meta) class below for more details.
 
-## Meta Objects
-
-```python
-class Meta()
-```
-
-<a id="ratingsystems.core.rating_system.RatingSystem.Meta.name"></a>
-
-#### name
+Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) can accept any options to __init__, but they must have a default value.
 
 <a id="ratingsystems.core.rating_system.RatingSystem.rate"></a>
 
@@ -1855,12 +1866,26 @@ Method to create a rating based on game data.
 
 **Arguments**:
 
-- `games` _list[Game]_ - list of games
+- `games` _list[[`Game`](#ratingsystems.core.rating_system.Game)]_ - list of games
   
 
 **Returns**:
 
-  Rating object with a rating for each team found in the game data
+  [`Rating`](#ratingsystems.core.rating_system.Rating) object with a rating for each team found in the game data
+
+<a id="ratingsystems.core.rating_system.RatingSystem.Meta"></a>
+
+## Meta Objects
+
+```python
+class Meta()
+```
+
+Meta class for a rating system. Any class that inherits from RatingSystem must override this Meta class and set the name field.
+
+<a id="ratingsystems.core.rating_system.RatingSystem.Meta.name"></a>
+
+#### name
 
 <a id="ratingsystems.core.util.file"></a>
 

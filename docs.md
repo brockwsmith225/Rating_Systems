@@ -29,6 +29,7 @@
   * [ParameterSource](#ratingsystems.core.cli.cli.ParameterSource)
   * [DataSource](#ratingsystems.core.cli.cli.DataSource)
   * [Predictor](#ratingsystems.core.cli.cli.Predictor)
+  * [RatingDifferencePredictor](#ratingsystems.core.cli.cli.RatingDifferencePredictor)
   * [RatingSystem](#ratingsystems.core.cli.cli.RatingSystem)
   * [KeyValuePair](#ratingsystems.core.cli.cli.KeyValuePair)
   * [SelectChoice](#ratingsystems.core.cli.cli.SelectChoice)
@@ -118,7 +119,7 @@
   * [asdict](#ratingsystems.core.data_source.asdict)
   * [Type](#ratingsystems.core.data_source.Type)
   * [Game](#ratingsystems.core.data_source.Game)
-  * [GameStat](#ratingsystems.core.data_source.GameStat)
+  * [GameStats](#ratingsystems.core.data_source.GameStats)
   * [config\_path](#ratingsystems.core.data_source.config_path)
   * [DataSource](#ratingsystems.core.data_source.DataSource)
     * [fetch](#ratingsystems.core.data_source.DataSource.fetch)
@@ -257,6 +258,7 @@
   * [AggregatePredictor](#ratingsystems.core.predictor.AggregatePredictor)
     * [predict](#ratingsystems.core.predictor.AggregatePredictor.predict)
   * [RatingDifferencePredictor](#ratingsystems.core.predictor.RatingDifferencePredictor)
+    * [Meta](#ratingsystems.core.predictor.RatingDifferencePredictor.Meta)
     * [predict](#ratingsystems.core.predictor.RatingDifferencePredictor.predict)
 * [ratingsystems.core.rating\_system](#ratingsystems.core.rating_system)
   * [ABC](#ratingsystems.core.rating_system.ABC)
@@ -427,6 +429,10 @@
 <a id="ratingsystems.core.cli.cli.Predictor"></a>
 
 ## Predictor
+
+<a id="ratingsystems.core.cli.cli.RatingDifferencePredictor"></a>
+
+## RatingDifferencePredictor
 
 <a id="ratingsystems.core.cli.cli.RatingSystem"></a>
 
@@ -1011,9 +1017,9 @@ ratingsystems fetch --data <datasource>
 
 ## Game
 
-<a id="ratingsystems.core.data_source.GameStat"></a>
+<a id="ratingsystems.core.data_source.GameStats"></a>
 
-## GameStat
+## GameStats
 
 <a id="ratingsystems.core.data_source.config_path"></a>
 
@@ -1121,6 +1127,10 @@ def auth_token(value: str)
 ```python
 class Meta()
 ```
+
+Meta class for a data source. Any class that inherits from DataSource must override this Meta class and set the name and stats_class fields.
+
+The stats_class field is used when loading data from the local disk to convert stats into the right stats class.
 
 <a id="ratingsystems.core.data_source.DataSource.Meta.name"></a>
 
@@ -1789,6 +1799,8 @@ Method to predict a matchup of two teams.
 class Meta()
 ```
 
+Meta class for a predictor. Any class that inherits from Predictor must override this Meta class and set the name field.
+
 <a id="ratingsystems.core.predictor.Predictor.Meta.name"></a>
 
 #### name
@@ -1816,6 +1828,18 @@ def predict(team: str, opponent: str) -> Prediction
 ```python
 class RatingDifferencePredictor(Predictor)
 ```
+
+<a id="ratingsystems.core.predictor.RatingDifferencePredictor.Meta"></a>
+
+## Meta
+
+```python
+class Meta()
+```
+
+<a id="ratingsystems.core.predictor.RatingDifferencePredictor.Meta.name"></a>
+
+#### name
 
 <a id="ratingsystems.core.predictor.RatingDifferencePredictor.predict"></a>
 

@@ -54,6 +54,9 @@ class Predictor(ABC):
         return self.Meta.name
 
     class Meta:
+        """
+        Meta class for a predictor. Any class that inherits from Predictor must override this Meta class and set the name field.
+        """
         name: str = ""
 
 

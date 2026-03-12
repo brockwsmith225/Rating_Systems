@@ -108,5 +108,10 @@ class DataSource(ABC):
         return self.Meta.name
 
     class Meta:
+        """
+        Meta class for a data source. Any class that inherits from DataSource must override this Meta class and set the name and stats_class fields.
+
+        The stats_class field is used when loading data from the local disk to convert stats into the right stats class.
+        """
         name: str = ""
         stats_class: Type = GameStats

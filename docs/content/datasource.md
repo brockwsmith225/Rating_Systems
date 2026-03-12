@@ -2,29 +2,22 @@
 
 # ratingsystems.core.data\_source
 
+Defines a data source, which can be used to fetch data for a sport.
+
+A data source can be used by calling the [`DataSource.fetch`](#ratingsystems.core.data_source.DataSource.fetch) function. This will return a list of [`Game`](#ratingsystems.core.data_source.Game).
+
+This is also exposed via the CLI command `fetch`, which can be called like this:
+```bash
+ratingsystems fetch --data <datasource>
+```
+
 <a id="ratingsystems.core.data_source.DataSource"></a>
 
-## DataSource Objects
+## DataSource
 
 ```python
 class DataSource(ABC)
 ```
-
-<a id="ratingsystems.core.data_source.DataSource.Meta"></a>
-
-## Meta Objects
-
-```python
-class Meta()
-```
-
-<a id="ratingsystems.core.data_source.DataSource.Meta.name"></a>
-
-#### name
-
-<a id="ratingsystems.core.data_source.DataSource.Meta.stats_class"></a>
-
-#### stats\_class
 
 <a id="ratingsystems.core.data_source.DataSource.cli"></a>
 
@@ -94,4 +87,20 @@ def save(games: list[Game])
 ```python
 def load(incomplete: bool = True) -> list[Game]
 ```
+
+<a id="ratingsystems.core.data_source.DataSource.Meta"></a>
+
+## Meta
+
+```python
+class Meta()
+```
+
+<a id="ratingsystems.core.data_source.DataSource.Meta.name"></a>
+
+#### name
+
+<a id="ratingsystems.core.data_source.DataSource.Meta.stats_class"></a>
+
+#### stats\_class
 

@@ -1,3 +1,13 @@
+"""
+Defines a rating system, which can be used to create a rating of teams.
+
+A rating system can be used by calling the #RatingSystem.rate function with a list of #Game. This will return a #Rating of the teams.
+
+This is also exposed via the CLI command `rate`, which can be called like this:
+```bash
+ratingsystems rate --data <datasource> --rating <ratingsystem>
+```
+"""
 from abc import ABC, abstractmethod
 from inspect import signature
 
@@ -11,18 +21,12 @@ class RatingSystem(ABC):
     """
     Abstract class used to create a rating system.
 
-    Classes that inherit from RatingSystem must implement a rate method which takes as input a list of Game objects and returns a Rating object.
+    Classes that inherit from #RatingSystem must implement a #rate method which takes as input a list of #Game objects and returns a #Rating object.
     
-    Classes that inherit from RatingSystem must also implement a #Meta class. See Meta class below for more details.
+    Classes that inherit from #RatingSystem must also implement a #Meta class. See #Meta class below for more details.
 
-    Classes that inherit from RatingSystem can accept any options to __init__, but they must have a default value.
+    Classes that inherit from #RatingSystem can accept any options to __init__, but they must have a default value.
     """
-
-    class Meta:
-        """
-        Meta class for a rating system. Any class that inherits from RatingSystem must override this Meta class and set the name field.
-        """
-        name: str = ""
 
     def __init__(self):
         pass
@@ -45,3 +49,9 @@ class RatingSystem(ABC):
 
     def __repr__(self) -> str:
         return self.Meta.name
+
+    class Meta:
+        """
+        Meta class for a rating system. Any class that inherits from RatingSystem must override this Meta class and set the name field.
+        """
+        name: str = ""

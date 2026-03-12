@@ -1,6 +1,10 @@
-md5 ed8003e94183ec2e6513a4144c297ba8 content/datasource.md
-md5 f68689195bb2f042bd28961b8ac1f159 content/ratingsystem.md
-md5 9dc1b94af71942bcab485c9f0287696f content/predictor.md
-md5 544eb8b933eb7dc69dd9c3f10dd9dae4 content/game.md
-md5 d10b2fe3afcc41da978cf149d1af17d6 content/rating.md
-md5 34ddeeb048748275f9020d1743a56b5b mkdocs.yml
+md5 9480709f052498a47289f6e816eaaf74 content/datasource.md
+md5 a46cdd9628b443d2c3c3ab30c7cd5c33 content/ratingsystem.md
+md5 514cdc51decaf2bbac7fe2eb474a6a23 content/predictor.md
+md5 555fe2c2e847d52f6af61cc2465bd68c content/game.md
+md5 368848cc01da0957413de177b71ce9e5 content/gamestats.md
+md5 ead9d11b1f9c2da564b36b363c795e20 content/prediction.md
+md5 77184ff2c3079a17c29459d34afe8828 content/rating.md
+md5 ee5813811c2c68929ae6d12fd21ddc74 content/stat.md
+md5 40dec050112f77c1c9969354549687cd content/team_rating.md
+md5 4fed4f85950d0274580e2f14a37f253b mkdocs.yml

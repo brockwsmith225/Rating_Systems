@@ -4,7 +4,7 @@
 
 <a id="ratingsystems.core.model.game.GameStats"></a>
 
-## GameStats Objects
+## GameStats
 
 ```python
 @dataclass
@@ -21,7 +21,7 @@ class GameStats()
 
 <a id="ratingsystems.core.model.game.Game"></a>
 
-## Game Objects
+## Game
 
 ```python
 @dataclass

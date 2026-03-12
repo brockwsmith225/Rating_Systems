@@ -1,3 +1,13 @@
+"""
+Defines a predictor, which can be used to predict a matchup between two teams.
+
+A predictor can be used by calling the #Predictor.predict function with a team and an opponent. This will return a #Prediction of the matchup.
+
+This is also exposed via the CLI command `predict`, which can be called like this:
+```bash
+ratingsystems predict --data <datasource> --rating <ratingsystem> --predictor <predictor> TEAM OPPONENT
+```
+"""
 import scipy.stats as st
 from abc import ABC, abstractmethod
 from inspect import signature
@@ -10,9 +20,15 @@ from ratingsystems.core.model import Prediction, Rating
 
 
 class Predictor(ABC):
+    """
+    Abstract class used to create a predictor.
 
-    class Meta:
-        name: str = ""
+    Classes that inherit from #Predictor must implement a #predict method which takes as input a team and an opponent and returns a #Prediction object.
+    
+    Classes that inherit from #Predictor must also implement a #Meta class. See #Meta class below for more details.
+
+    Classes that inherit from #Predictor can accept any options to __init__, but they must have a default value, and it must accept a #Rating as its first argument.
+    """
 
     def __init__(self, rating: Rating):
         self.rating = rating
@@ -26,6 +42,9 @@ class Predictor(ABC):
 
     def __repr__(self) -> str:
         return self.Meta.name
+
+    class Meta:
+        name: str = ""
 
 
 class AggregatePredictor():

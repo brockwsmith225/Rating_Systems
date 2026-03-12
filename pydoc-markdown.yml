@@ -17,6 +17,8 @@ renderer:
   # render_toc: true
   type: mkdocs
   output_directory: docs
+  markdown:
+    descriptive_class_title: false
   pages:
     - title: DataSource
       name: datasource
@@ -34,7 +36,23 @@ renderer:
       name: game
       contents:
         - ratingsystems.core.model.game.Game*
+    - title: GameStats
+      name: gamestats
+      contents:
+        - ratingsystems.core.model.game.GameStats*
+    - title: Prediction
+      name: prediction
+      contents:
+        - ratingsystems.core.model.prediction.Prediction*
     - title: Rating
       name: rating
       contents:
         - ratingsystems.core.model.rating.Rating*
+    - title: Stat
+      name: stat
+      contents:
+        - ratingsystems.core.model.stat.Stat*
+    - title: TeamRating
+      name: team_rating
+      contents:
+        - ratingsystems.core.model.team_rating.TeamRating*

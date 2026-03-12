@@ -4,7 +4,7 @@
 
 <a id="ratingsystems.core.model.rating.Rating"></a>
 
-## Rating Objects
+## Rating
 
 ```python
 class Rating()

@@ -1,22 +1,26 @@
-import cbbd
+"""
+Defines a data source, which can be used to fetch data for a sport.
+
+A data source can be used by calling the #DataSource.fetch function. This will return a list of #Game.
+
+This is also exposed via the CLI command `fetch`, which can be called like this:
+```bash
+ratingsystems fetch --data <datasource>
+```
+"""
 import json
 import os
 from abc import ABC, abstractmethod
 from dataclasses import asdict
-from datetime import datetime
 from typing import Type
 
-from ratingsystems.core.model import Game, GameStats, Stat
+from ratingsystems.core.model import Game, GameStat
 from ratingsystems.core.util import config_path
 
 
 class DataSource(ABC):
 
-    class Meta:
-        name: str = ""
-        stats_class: Type = Stat
-
-    def __init__(self, year: int = datetime.now().year, include_incomplete: bool = False):
+    def __init__(self, year: int):
         self.year = year
 
     def cli(self, context):
@@ -80,3 +84,7 @@ class DataSource(ABC):
 
     def __repr__(self) -> str:
         return self.Meta.name
+
+    class Meta:
+        name: str = ""
+        stats_class: Type = GameStat

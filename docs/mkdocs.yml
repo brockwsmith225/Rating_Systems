@@ -4,5 +4,9 @@ nav:
 - RatingSystem: ratingsystem.md
 - Predictor: predictor.md
 - Game: game.md
+- GameStats: gamestats.md
+- Prediction: prediction.md
 - Rating: rating.md
+- Stat: stat.md
+- TeamRating: team_rating.md
 site_name: My Project

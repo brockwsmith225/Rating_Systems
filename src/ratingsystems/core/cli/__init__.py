@@ -1,0 +1,1 @@
+from ratingsystems.core.cli.cli import cli

@@ -1,0 +1,5 @@
+click~=8.1
+click-shell~=2.1
+numpy~=2.1
+scikit-learn~=1.6
+scipy~=1.14

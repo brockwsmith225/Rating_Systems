@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ratingsystems"
+version = "0.1.0"
+dependencies = [
+    "click~=8.1",
+    "click-shell~=2.1",
+    "numpy~=2.1",
+    "scikit-learn~=1.6",
+    "scipy~=1.14",
+]
+requires-python = ">=3.11"
+authors = []
+maintainers = []
+description = "Core library for rating systems"
+
+[tool.setuptools.packages.find]
+where = ["src/"]
+include = ["ratingsystems*"]
+namespaces = true
+
+[project.scripts]
+ratingsystems = "ratingsystems.core.cli:cli"

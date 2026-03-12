@@ -1,0 +1,2 @@
+[console_scripts]
+ratingsystems = ratingsystems.core.cli:cli

@@ -1,5 +1,5 @@
 import scipy.stats as st
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from inspect import signature
 from typing import Optional
 
@@ -9,7 +9,7 @@ from click.core import ParameterSource
 from ratingsystems.core.model import Prediction, Rating
 
 
-class Predictor():
+class Predictor(ABC):
 
     class Meta:
         name: str = ""

@@ -17,11 +17,11 @@ from ratingsystems.core.util import center, ljustify, rjustify
 
 
 # Common options
-year = click.option("--year", "-y", type=int, default=datetime.now().year, help="")
-datasource = click.option("--data", "-d", "datasource", type=SelectChoice({}, case_sensitive=False), help="")
-ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), help="")
-predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({}, case_sensitive=False), help="")
-options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="")
+year = click.option("--year", "-y", type=int, default=datetime.now().year, help="Year of data to use")
+datasource = click.option("--data", "-d", "datasource", type=SelectChoice({}, case_sensitive=False), help="Select a data source from those you've installed")
+ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), help="Select a rating system from those you've installed")
+predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({}, case_sensitive=False), help="Select a predictor from those you've installed")
+options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="Set an option to be passed to any plugin that accepts it, can be set multiple times, see specific plugin documentation for what options are available")
 
 
 def load_cli_plugins():
@@ -37,10 +37,6 @@ def load_cli_plugins():
                 continue
             for param in cli.params:
                 if param.name == type.__name__.lower() and isinstance(param.type, click.Choice):
-                    print(plugin.Meta.name)
-                    print(param)
-                    print(param.type)
-                    print(param.type.choices)
                     param.type.choices[plugin.Meta.name] = plugin
 
 
@@ -59,6 +55,9 @@ def cli(
     predictor: Optional[Predictor] = None,
     options: dict[str, Any] = {},
 ):
+    """
+    CLI for interacting with rating systems. Use without a subcommand to start a shell.
+    """
     context.ensure_object(dict)
     context.obj = {
         "ratings": {},
@@ -82,6 +81,9 @@ def config(
     predictor: Optional[Predictor] = None,
     options: dict[str, Any] = {},
 ):
+    """
+    Used to set config values or see current config.
+    """
     set_defaults(context)
 
     if all([ps in [ParameterSource.DEFAULT, ParameterSource.DEFAULT_MAP] for ps in context._parameter_source.values()]):
@@ -133,6 +135,9 @@ def fetch(
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
 ):
+    """
+    Used to fetch data.
+    """
     if datasource is None:
         click.echo("Input Error: must specify a data source (-d, --data)")
         context.exit(1)
@@ -165,8 +170,8 @@ def fetch(
 @datasource
 @ratingsystem
 @options
-@click.option("--pretty/--no-pretty", type=bool, is_flag=True, default=False, help="")
-@click.option("--hidden/--no-hidden", type=bool, is_flag=True, default=False, help="")
+@click.option("--pretty/--no-pretty", type=bool, is_flag=True, default=False, help="Pretty print rating")
+@click.option("--hidden/--no-hidden", type=bool, is_flag=True, default=False, help="Include hidden ratings in output")
 @click.pass_context
 def rate(
     context,
@@ -177,6 +182,9 @@ def rate(
     hidden: bool = False,
     options: dict[str, Any] = {},
 ):
+    """
+    Used to create a rating.
+    """
     if datasource is None:
         click.echo("Input Error: must specify a data source (-d, --data)")
         context.exit(1)
@@ -238,6 +246,13 @@ def predict(
     predictor: Optional[Predictor] = None,
     options: dict[str, Any] = {},
 ):
+    """
+    Used to predict a matchup between TEAM and OPPONENT.
+
+    \b
+      TEAM first team in the matchup
+      OPPONENT second team in the matchup
+    """
     if datasource is None:
         click.echo("Input Error: must specify a data source (-d, --data)")
         context.exit(1)

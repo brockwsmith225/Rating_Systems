@@ -1,0 +1,40 @@
+loaders:
+  - type: python
+    search_path:
+      - src
+    # modules:
+    #   - ratingsystems
+
+processors:
+  - type: filter
+    expression: not name.startswith("_")
+  - type: smart
+  - type: crossref
+
+renderer:
+  # type: markdown
+  # filename: docs.md
+  # render_toc: true
+  type: mkdocs
+  output_directory: docs
+  pages:
+    - title: DataSource
+      name: datasource
+      contents:
+        - ratingsystems.core.data_source.DataSource*
+    - title: RatingSystem
+      name: ratingsystem
+      contents:
+        - ratingsystems.core.rating_system.RatingSystem*
+    - title: Predictor
+      name: predictor
+      contents:
+        - ratingsystems.core.predictor.Predictor*
+    - title: Game
+      name: game
+      contents:
+        - ratingsystems.core.model.game.Game*
+    - title: Rating
+      name: rating
+      contents:
+        - ratingsystems.core.model.rating.Rating*

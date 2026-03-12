@@ -1,0 +1,6 @@
+md5 ed8003e94183ec2e6513a4144c297ba8 content/datasource.md
+md5 f68689195bb2f042bd28961b8ac1f159 content/ratingsystem.md
+md5 9dc1b94af71942bcab485c9f0287696f content/predictor.md
+md5 544eb8b933eb7dc69dd9c3f10dd9dae4 content/game.md
+md5 d10b2fe3afcc41da978cf149d1af17d6 content/rating.md
+md5 34ddeeb048748275f9020d1743a56b5b mkdocs.yml

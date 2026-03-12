@@ -1,0 +1,8 @@
+docs_dir: content
+nav:
+- DataSource: datasource.md
+- RatingSystem: ratingsystem.md
+- Predictor: predictor.md
+- Game: game.md
+- Rating: rating.md
+site_name: My Project

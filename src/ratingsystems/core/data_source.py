@@ -1,7 +1,7 @@
 import cbbd
 import json
 import os
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from dataclasses import asdict
 from datetime import datetime
 from typing import Type
@@ -10,7 +10,7 @@ from ratingsystems.core.model import Game, GameStats, Stat
 from ratingsystems.core.util import config_path
 
 
-class DataSource():
+class DataSource(ABC):
 
     class Meta:
         name: str = ""

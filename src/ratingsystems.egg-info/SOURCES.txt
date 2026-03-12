@@ -1,10 +1,4 @@
 pyproject.toml
-src/ratingsystems.egg-info/PKG-INFO
-src/ratingsystems.egg-info/SOURCES.txt
-src/ratingsystems.egg-info/dependency_links.txt
-src/ratingsystems.egg-info/entry_points.txt
-src/ratingsystems.egg-info/requires.txt
-src/ratingsystems.egg-info/top_level.txt
 src/ratingsystems/__init__.py
 src/ratingsystems.egg-info/PKG-INFO
 src/ratingsystems.egg-info/SOURCES.txt

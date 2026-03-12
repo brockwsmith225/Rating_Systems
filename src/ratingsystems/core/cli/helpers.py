@@ -4,7 +4,7 @@ from typing import Any, Optional, Type
 import click
 
 
-def combine_key_value_pairs(context: click.Context, param: click.Parameter, value: tuple[dict[str, Any]]) -> dict[str, Any]:
+def combine_key_value_pairs(ctx: click.Context, param: click.Parameter, value: tuple[dict[str, Any]]) -> dict[str, Any]:
     result = {}
     for d in value:
         result.update(d)
@@ -36,20 +36,24 @@ def filter_options(options: dict[str, Any], cls: Type):
 
 class SelectChoice(click.Choice):
 
-    def convert(self, value: Optional[str] = None, param: Optional[click.Parameter] = None, context: Optional[click.Context] = None) -> Any:
+    def __init__(self, choices: dict[str, Any], *args, **kwargs):
+        super().__init__(choices, *args, **kwargs)
+        self.choices = choices
+
+    def convert(self, value: Optional[str] = None, param: Optional[click.Parameter] = None, ctx: Optional[click.Context] = None) -> Any:
         if value is None:
             return None
 
-        value = super().convert(value, param, context)
+        value = super().convert(value, param, ctx)
         return self.choices.get(value)
 
 
 class WeightedSelectChoice(SelectChoice):
 
-    def convert(self, value: Optional[str] = None, param: Optional[click.Parameter] = None, context: Optional[click.Context] = None) -> Any:
-        value, weight = KeyValuePair(delimiter=":", default=1).convert(value, param, context)
+    def convert(self, value: Optional[str] = None, param: Optional[click.Parameter] = None, ctx: Optional[click.Context] = None) -> Any:
+        value, weight = KeyValuePair(delimiter=":", default=1).convert(value, param, ctx)
 
-        return (super().convert(value, param, context), weight)
+        return (super().convert(value, param, ctx), weight)
 
 
 class KeyValuePair(click.ParamType):
@@ -60,7 +64,7 @@ class KeyValuePair(click.ParamType):
         self.delimiter = delimiter
         self.default = default
 
-    def convert(self, value: Optional[str] = None, param: Optional[click.Parameter] = None, context: Optional[click.Context] = None) -> dict[str, Any]:
+    def convert(self, value: Optional[str] = None, param: Optional[click.Parameter] = None, ctx: Optional[click.Context] = None) -> dict[str, Any]:
         if value is None:
             return None
 
@@ -70,11 +74,11 @@ class KeyValuePair(click.ParamType):
             if value == "":
                 return {key: None}
             return {key: value}
-        elif len(pair) == 1 and context is not None and pair[0] in context.default_map.get(param.name, {}):
+        elif len(pair) == 1 and ctx is not None and pair[0] in ctx.default_map.get(param.name, {}):
             key = pair[0]
-            return {key: context.default_map[param.name][key]}
+            return {key: ctx.default_map[param.name][key]}
         else:
             raise IOError(f"Invalid format for key-value pair '{value}'")
 
-    def get_metavar(self, param: click.Parameter, context: Optional[click.Context] = None) -> str:
+    def get_metavar(self, param: click.Parameter, ctx: Optional[click.Context] = None) -> str:
         return "KEY=VALUE"

@@ -37,6 +37,10 @@ def load_cli_plugins():
                 continue
             for param in cli.params:
                 if param.name == type.__name__.lower() and isinstance(param.type, click.Choice):
+                    print(plugin.Meta.name)
+                    print(param)
+                    print(param.type)
+                    print(param.type.choices)
                     param.type.choices[plugin.Meta.name] = plugin
 
 
@@ -137,7 +141,7 @@ def fetch(
 
     if data.auth_token is None:
         click.echo(f"No auth token found for data source {datasource.Meta.name}")
-        data.auth_token = click.prompt("Auth token", type=str)
+        data.auth_token = click.prompt("Auth token", type=str, hide_input=True)
 
     try:
         click.echo(f"Fetching data for {datasource.Meta.name} {year} ...")

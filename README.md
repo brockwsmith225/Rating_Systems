@@ -1,6 +1,6 @@
 # ratingsystems
 
-This Python module defines 
+This Python module defines features for creating rating systems for sports teams.
 
 
 ---
@@ -45,9 +45,10 @@ You can run `ratingsystems` to start an interactive shell. In this shell you can
 
 # Plugins
 
-The ratingsystems module provides a few base objects which can be used to create plugins.
+The ratingsystems module provides a few base objects which can be used to create plugins. These plugins will automatically be picked up by the CLI when installed.
 
-### CLI 
+
+### CLI Integration
 
 Plugins will automatically get picked up by the CLI if you include the following in your `pyproject.toml`. (Note: any changes to the `pyproject.toml` will require you to reinstall the package for the change to be picked up)
 
@@ -61,12 +62,18 @@ cbb = "ratingsystems.data:CBBDataSource"
 
 Data Sources are created using the [`DataSource`](docs.md#ratingsystems.core.data_source.DataSource) class.
 
+A plugin should implement the DataSource.fetch method, which should return a list of Game objects.
+
 
 ## Rating Systems
 
 Rating Systems are created using the [`RatingSystem`](docs.md#ratingsystems.core.rating_system.RatingSystem) class.
 
+A plugin should implement the RatingSystem.rate method, which should return a Rating object.
+
 
 ## Predictors
 
 Predictors are created using the [`Predictor`](docs.md#ratingsystems.core.predictor.Predictor) class.
+
+A plugin should implement the Predictor.predict method, which should return a Prediction object.

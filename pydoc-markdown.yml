@@ -4,9 +4,6 @@ loaders:
       - src
     packages:
       - ratingsystems
-    # modules:
-    #   - ratingsystems
-    #   - ratingsystems.RatingSystem
 
 processors:
   - type: filter

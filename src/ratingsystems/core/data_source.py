@@ -24,10 +24,15 @@ class DataSource(ABC):
 
     Classes that inherit from #DataSource must implement a #fetch method which returns a list of #Game.
     
-    Classes that inherit from #DataSource must also implement a #Meta class. See #Meta class below for more details.
-
     Classes that inherit from #DataSource can accept any options to __init__, but they must have a default value, and it must accept a year (int) as its first argument.
+
+    Classes that inherit from #DataSource should override the name class attribute to give their data source a name.
+
+    Classes that inherit from #DataSource can override the stats_class class attribute (default: #GameStats) to give their data source a name. The stats_class field is used when loading data from the local disk to convert the stats into the right class.
     """
+
+    name: str = ""
+    stats_class: Type = GameStats
 
     def __init__(self, year: int):
         self.year = year
@@ -60,11 +65,11 @@ class DataSource(ABC):
             list of #Game
         """
         if not os.path.exists(self.data_path):
-            raise FileNotFoundError(f"No data found on local device for {self.Meta.name} {self.year}")
+            raise FileNotFoundError(f"No data found on local device for {self.name} {self.year}")
 
         with open(self.data_path, "r") as f:
-            if hasattr(self.Meta, "stats_class"):
-                games = [Game(**game, stats_class=self.Meta.stats_class) for game in json.load(f)]
+            if hasattr(self, "stats_class"):
+                games = [Game(**game, stats_class=self.stats_class) for game in json.load(f)]
             else:
                 games = [Game(**game) for game in json.load(f)]
         if not incomplete:
@@ -81,11 +86,11 @@ class DataSource(ABC):
 
     @property
     def data_path(self) -> str:
-        return os.path.join(self.data_dir, f"{self.Meta.name}-{self.year}.json")
+        return os.path.join(self.data_dir, f"{self.name}-{self.year}.json")
 
     @property
     def auth_token(self) -> str:
-        auth_path = os.path.join(config_path, "auth", f"{self.Meta.name}")
+        auth_path = os.path.join(config_path, "auth", f"{self.name}")
         if not os.path.exists(auth_path):
             return None
         else:
@@ -95,23 +100,14 @@ class DataSource(ABC):
 
     @auth_token.setter
     def auth_token(self, value: str):
-        auth_path = os.path.join(config_path, "auth", f"{self.Meta.name}")
+        auth_path = os.path.join(config_path, "auth", f"{self.name}")
         if not os.path.exists(os.path.dirname(auth_path)):
             os.mkdir(os.path.dirname(auth_path))
         with open(auth_path, "w") as f:
             f.write(value)
 
     def __str__(self) -> str:
-        return self.Meta.name
+        return self.name
 
     def __repr__(self) -> str:
-        return self.Meta.name
-
-    class Meta:
-        """
-        Meta class for a data source. Any class that inherits from DataSource must override this Meta class and set the name and stats_class fields.
-
-        The stats_class field is used when loading data from the local disk to convert stats into the right stats class.
-        """
-        name: str = ""
-        stats_class: Type = GameStats
+        return self.name

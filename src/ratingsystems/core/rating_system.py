@@ -22,11 +22,13 @@ class RatingSystem(ABC):
     Abstract class used to create a rating system.
 
     Classes that inherit from #RatingSystem must implement a #rate method which takes as input a list of #Game objects and returns a #Rating object.
-    
-    Classes that inherit from #RatingSystem must also implement a #Meta class. See #Meta class below for more details.
 
     Classes that inherit from #RatingSystem can accept any options to __init__, but they must have a default value.
+    
+    Classes that inherit from #RatingSystem should override the name class attribute to give their rating system a name.
     """
+
+    name: str = ""
 
     def __init__(self):
         pass
@@ -45,13 +47,7 @@ class RatingSystem(ABC):
         raise NotImplementedError()
 
     def __str__(self) -> str:
-        return self.Meta.name
+        return self.name
 
     def __repr__(self) -> str:
-        return self.Meta.name
-
-    class Meta:
-        """
-        Meta class for a rating system. Any class that inherits from RatingSystem must override this Meta class and set the name field.
-        """
-        name: str = ""
+        return self.name

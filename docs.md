@@ -122,6 +122,8 @@
   * [GameStats](#ratingsystems.core.data_source.GameStats)
   * [config\_path](#ratingsystems.core.data_source.config_path)
   * [DataSource](#ratingsystems.core.data_source.DataSource)
+    * [name](#ratingsystems.core.data_source.DataSource.name)
+    * [stats\_class](#ratingsystems.core.data_source.DataSource.stats_class)
     * [fetch](#ratingsystems.core.data_source.DataSource.fetch)
     * [save](#ratingsystems.core.data_source.DataSource.save)
     * [load](#ratingsystems.core.data_source.DataSource.load)
@@ -129,7 +131,6 @@
     * [data\_path](#ratingsystems.core.data_source.DataSource.data_path)
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
-    * [Meta](#ratingsystems.core.data_source.DataSource.Meta)
 * [ratingsystems.core.model.bracket](#ratingsystems.core.model.bracket)
   * [dataclass](#ratingsystems.core.model.bracket.dataclass)
   * [Any](#ratingsystems.core.model.bracket.Any)
@@ -253,12 +254,12 @@
   * [Prediction](#ratingsystems.core.predictor.Prediction)
   * [Rating](#ratingsystems.core.predictor.Rating)
   * [Predictor](#ratingsystems.core.predictor.Predictor)
+    * [name](#ratingsystems.core.predictor.Predictor.name)
     * [predict](#ratingsystems.core.predictor.Predictor.predict)
-    * [Meta](#ratingsystems.core.predictor.Predictor.Meta)
   * [AggregatePredictor](#ratingsystems.core.predictor.AggregatePredictor)
     * [predict](#ratingsystems.core.predictor.AggregatePredictor.predict)
   * [RatingDifferencePredictor](#ratingsystems.core.predictor.RatingDifferencePredictor)
-    * [Meta](#ratingsystems.core.predictor.RatingDifferencePredictor.Meta)
+    * [name](#ratingsystems.core.predictor.RatingDifferencePredictor.name)
     * [predict](#ratingsystems.core.predictor.RatingDifferencePredictor.predict)
 * [ratingsystems.core.rating\_system](#ratingsystems.core.rating_system)
   * [ABC](#ratingsystems.core.rating_system.ABC)
@@ -269,8 +270,8 @@
   * [Game](#ratingsystems.core.rating_system.Game)
   * [Rating](#ratingsystems.core.rating_system.Rating)
   * [RatingSystem](#ratingsystems.core.rating_system.RatingSystem)
+    * [name](#ratingsystems.core.rating_system.RatingSystem.name)
     * [rate](#ratingsystems.core.rating_system.RatingSystem.rate)
-    * [Meta](#ratingsystems.core.rating_system.RatingSystem.Meta)
 * [ratingsystems.core.util.file](#ratingsystems.core.util.file)
   * [os](#ratingsystems.core.util.file.os)
   * [config\_path](#ratingsystems.core.util.file.config_path)
@@ -1037,9 +1038,19 @@ Abstract class used to create a data source.
 
 Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) must implement a [`fetch`](#ratingsystems.core.data_source.DataSource.fetch) method which returns a list of [`Game`](#ratingsystems.core.data_source.Game).
 
-Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) must also implement a [`Meta`](#ratingsystems.core.data_source.DataSource.Meta) class. See [`Meta`](#ratingsystems.core.data_source.DataSource.Meta) class below for more details.
-
 Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) can accept any options to __init__, but they must have a default value, and it must accept a year (int) as its first argument.
+
+Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) should override the name class attribute to give their data source a name.
+
+Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) can override the stats_class class attribute (default: [`GameStats`](#ratingsystems.core.data_source.GameStats)) to give their data source a name. The stats_class field is used when loading data from the local disk to convert the stats into the right class.
+
+<a id="ratingsystems.core.data_source.DataSource.name"></a>
+
+#### name
+
+<a id="ratingsystems.core.data_source.DataSource.stats_class"></a>
+
+#### stats\_class
 
 <a id="ratingsystems.core.data_source.DataSource.fetch"></a>
 
@@ -1119,26 +1130,6 @@ def auth_token() -> str
 @auth_token.setter
 def auth_token(value: str)
 ```
-
-<a id="ratingsystems.core.data_source.DataSource.Meta"></a>
-
-## Meta
-
-```python
-class Meta()
-```
-
-Meta class for a data source. Any class that inherits from DataSource must override this Meta class and set the name and stats_class fields.
-
-The stats_class field is used when loading data from the local disk to convert stats into the right stats class.
-
-<a id="ratingsystems.core.data_source.DataSource.Meta.name"></a>
-
-#### name
-
-<a id="ratingsystems.core.data_source.DataSource.Meta.stats_class"></a>
-
-#### stats\_class
 
 <a id="ratingsystems.core.model.bracket"></a>
 
@@ -1766,9 +1757,13 @@ Abstract class used to create a predictor.
 
 Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) must implement a [`predict`](#ratingsystems.core.predictor.Predictor.predict) method which takes as input a team and an opponent and returns a [`Prediction`](#ratingsystems.core.predictor.Prediction) object.
 
-Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) must also implement a [`Meta`](#ratingsystems.core.predictor.Predictor.Meta) class. See [`Meta`](#ratingsystems.core.predictor.Predictor.Meta) class below for more details.
-
 Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) can accept any options to __init__, but they must have a default value, and it must accept a [`Rating`](#ratingsystems.core.predictor.Rating) as its first argument.
+
+Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) should override the name class attribute to give their predictor a name.
+
+<a id="ratingsystems.core.predictor.Predictor.name"></a>
+
+#### name
 
 <a id="ratingsystems.core.predictor.Predictor.predict"></a>
 
@@ -1790,20 +1785,6 @@ Method to predict a matchup of two teams.
 **Returns**:
 
   [`Prediction`](#ratingsystems.core.predictor.Prediction) object with prediction for the matchup
-
-<a id="ratingsystems.core.predictor.Predictor.Meta"></a>
-
-## Meta
-
-```python
-class Meta()
-```
-
-Meta class for a predictor. Any class that inherits from Predictor must override this Meta class and set the name field.
-
-<a id="ratingsystems.core.predictor.Predictor.Meta.name"></a>
-
-#### name
 
 <a id="ratingsystems.core.predictor.AggregatePredictor"></a>
 
@@ -1829,15 +1810,7 @@ def predict(team: str, opponent: str) -> Prediction
 class RatingDifferencePredictor(Predictor)
 ```
 
-<a id="ratingsystems.core.predictor.RatingDifferencePredictor.Meta"></a>
-
-## Meta
-
-```python
-class Meta()
-```
-
-<a id="ratingsystems.core.predictor.RatingDifferencePredictor.Meta.name"></a>
+<a id="ratingsystems.core.predictor.RatingDifferencePredictor.name"></a>
 
 #### name
 
@@ -1902,9 +1875,13 @@ Abstract class used to create a rating system.
 
 Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) must implement a [`rate`](#ratingsystems.core.rating_system.RatingSystem.rate) method which takes as input a list of [`Game`](#ratingsystems.core.rating_system.Game) objects and returns a [`Rating`](#ratingsystems.core.rating_system.Rating) object.
 
-Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) must also implement a [`Meta`](#ratingsystems.core.rating_system.RatingSystem.Meta) class. See [`Meta`](#ratingsystems.core.rating_system.RatingSystem.Meta) class below for more details.
-
 Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) can accept any options to __init__, but they must have a default value.
+
+Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) should override the name class attribute to give their rating system a name.
+
+<a id="ratingsystems.core.rating_system.RatingSystem.name"></a>
+
+#### name
 
 <a id="ratingsystems.core.rating_system.RatingSystem.rate"></a>
 
@@ -1925,20 +1902,6 @@ Method to create a rating based on game data.
 **Returns**:
 
   [`Rating`](#ratingsystems.core.rating_system.Rating) object with a rating for each team found in the game data
-
-<a id="ratingsystems.core.rating_system.RatingSystem.Meta"></a>
-
-## Meta
-
-```python
-class Meta()
-```
-
-Meta class for a rating system. Any class that inherits from RatingSystem must override this Meta class and set the name field.
-
-<a id="ratingsystems.core.rating_system.RatingSystem.Meta.name"></a>
-
-#### name
 
 <a id="ratingsystems.core.util.file"></a>
 

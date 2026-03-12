@@ -24,11 +24,13 @@ class Predictor(ABC):
     Abstract class used to create a predictor.
 
     Classes that inherit from #Predictor must implement a #predict method which takes as input a team and an opponent and returns a #Prediction object.
-    
-    Classes that inherit from #Predictor must also implement a #Meta class. See #Meta class below for more details.
 
     Classes that inherit from #Predictor can accept any options to __init__, but they must have a default value, and it must accept a #Rating as its first argument.
+    
+    Classes that inherit from #Predictor should override the name class attribute to give their predictor a name.
     """
+
+    name: str = ""
 
     def __init__(self, rating: Rating):
         self.rating = rating
@@ -48,16 +50,10 @@ class Predictor(ABC):
         raise NotImplementedError()
 
     def __str__(self) -> str:
-        return self.Meta.name
+        return self.name
 
     def __repr__(self) -> str:
-        return self.Meta.name
-
-    class Meta:
-        """
-        Meta class for a predictor. Any class that inherits from Predictor must override this Meta class and set the name field.
-        """
-        name: str = ""
+        return self.name
 
 
 class AggregatePredictor():
@@ -86,8 +82,7 @@ class AggregatePredictor():
 
 class RatingDifferencePredictor(Predictor):
 
-    class Meta:
-        name: str = "diff"
+    name: str = "diff"
 
     def predict(self, team: str, opponent: str) -> Prediction:
         line = (self.rating.get_value(team) - self.rating.get_value(opponent))

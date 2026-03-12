@@ -20,7 +20,7 @@ from ratingsystems.core.util import center, ljustify, rjustify
 year = click.option("--year", "-y", type=int, default=datetime.now().year, help="Year of data to use")
 datasource = click.option("--data", "-d", "datasource", type=SelectChoice({}, case_sensitive=False), help="Select a data source from those you've installed")
 ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), help="Select a rating system from those you've installed")
-predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.Meta.name: RatingDifferencePredictor}, case_sensitive=False), default=RatingDifferencePredictor.Meta.name, help="Select a predictor from those you've installed")
+predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.name: RatingDifferencePredictor}, case_sensitive=False), default=RatingDifferencePredictor.name, help="Select a predictor from those you've installed")
 options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="Set an option to be passed to any plugin that accepts it, can be set multiple times, see specific plugin documentation for what options are available")
 
 
@@ -37,7 +37,7 @@ def load_cli_plugins():
                 continue
             for param in cli.params:
                 if param.name == type.__name__.lower() and isinstance(param.type, click.Choice):
-                    param.type.choices[plugin.Meta.name] = plugin
+                    param.type.choices[plugin.name] = plugin
 
 
 @shell(prompt="ratingsystems > ", intro="Starting ratingsystems cli...", context_settings={'show_default': True})
@@ -90,11 +90,11 @@ def config(
         if year is not None:
             click.echo(f"year={year}")
         if datasource is not None:
-            click.echo(f"datasource={datasource.Meta.name}")
+            click.echo(f"datasource={datasource.name}")
         if ratingsystem is not None:
-            click.echo(f"ratingsystem={ratingsystem.Meta.name}")
+            click.echo(f"ratingsystem={ratingsystem.name}")
         if predictor is not None:
-            click.echo(f"predictor={predictor.Meta.name}")
+            click.echo(f"predictor={predictor.name}")
         if len(options) > 0:
             click.echo(f"options={options}")
 
@@ -109,7 +109,7 @@ def set_defaults(context, new_parameters: Optional[dict[str, Any]] = None) -> di
         parameters = {}
         for param, value in new_parameters.items():
             if isclass(value):
-                parameters[param] = value.Meta.name
+                parameters[param] = value.name
             elif isinstance(value, tuple):
                 parameters[param] = context.default_map.get(param, ()) + value
             elif isinstance(value, dict):
@@ -145,15 +145,15 @@ def fetch(
     data = datasource(year)
 
     if data.auth_token is None:
-        click.echo(f"No auth token found for data source {datasource.Meta.name}")
+        click.echo(f"No auth token found for data source {datasource.name}")
         data.auth_token = click.prompt("Auth token", type=str, hide_input=True)
 
     try:
-        click.echo(f"Fetching data for {datasource.Meta.name} {year} ...")
+        click.echo(f"Fetching data for {datasource.name} {year} ...")
         games = data.fetch()
         click.echo(f"Fetched data: {len(games)} games")
     except Exception as e:
-        click.echo(f"Error in fetching data for {datasource.Meta.name} {year}: {e}")
+        click.echo(f"Error in fetching data for {datasource.name} {year}: {e}")
         context.exit(1)
 
     try:
@@ -161,7 +161,7 @@ def fetch(
         data.save(games)
         click.echo("Saved data")
     except Exception as e:
-        click.echo(f"Error in saving data for {datasource.Meta.name} {year}: {e}")
+        click.echo(f"Error in saving data for {datasource.name} {year}: {e}")
         context.exit(1)
 
 
@@ -199,7 +199,7 @@ def rate(
     try:
         games = data.load(incomplete=False)
     except Exception as e:
-        click.echo(f"Error in loading data for {datasource.Meta.name} {year}: {e}")
+        click.echo(f"Error in loading data for {datasource.name} {year}: {e}")
         context.exit(1)
 
     rs = ratingsystem(**filter_options(options, ratingsystem))
@@ -207,11 +207,11 @@ def rate(
     try:
         rating = rs.rate(games)
     except Exception as e:
-        click.echo(f"Error in creating rating for {ratingsystem.Meta.name} {year}: {e}")
+        click.echo(f"Error in creating rating for {ratingsystem.name} {year}: {e}")
         context.exit(1)
 
     # Store rating for shell mode
-    context.obj["ratings"][rs.Meta.name] = rating
+    context.obj["ratings"][rs.name] = rating
 
     if pretty:
         click.echo(f"{rjustify('RANK', 4)} | {ljustify('TEAM', 30)} | {center('RECORD', 7)} | {' | '.join([center(r.name.upper(), 10) for r in rating.ratings(hidden=hidden)])}")
@@ -267,23 +267,23 @@ def predict(
     try:
         games = data.load(incomplete=False)
     except Exception as e:
-        click.echo(f"Error in loading data for {datasource.Meta.name} {year}: {e}")
+        click.echo(f"Error in loading data for {datasource.name} {year}: {e}")
         context.exit(1)
 
-    if ratingsystem.Meta.name in context.obj["ratings"]:
+    if ratingsystem.name in context.obj["ratings"]:
         # If in shell mode and we've already made a rating with this rating system, use it
-        rating = context.obj["ratings"][ratingsystem.Meta.name]
+        rating = context.obj["ratings"][ratingsystem.name]
     else:
         rs = ratingsystem(**filter_options(options, ratingsystem))
 
         try:
             rating = rs.rate(games)
         except Exception as e:
-            click.echo(f"Error in creating rating for {ratingsystem.Meta.name} {datasource.Meta.name} {year}: {e}")
+            click.echo(f"Error in creating rating for {ratingsystem.name} {datasource.name} {year}: {e}")
             context.exit(1)
 
         # Store rating for shell mode
-        context.obj["ratings"][rs.Meta.name] = rating
+        context.obj["ratings"][rs.name] = rating
 
     p = predictor(rating, **filter_options(options, ratingsystem))
 
@@ -291,7 +291,7 @@ def predict(
     try:
         prediction = p.predict(team, opponent)
     except Exception as e:
-        click.echo(f"Error in creating prediction for {predictor.Meta.name} {ratingsystem.Meta.name} {datasource.Meta.name} {year}: {e}")
+        click.echo(f"Error in creating prediction for {predictor.name} {ratingsystem.name} {datasource.name} {year}: {e}")
         context.exit(1)
 
     click.echo(prediction)

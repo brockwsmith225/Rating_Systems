@@ -121,14 +121,13 @@
   * [GameStat](#ratingsystems.core.data_source.GameStat)
   * [config\_path](#ratingsystems.core.data_source.config_path)
   * [DataSource](#ratingsystems.core.data_source.DataSource)
-    * [cli](#ratingsystems.core.data_source.DataSource.cli)
     * [fetch](#ratingsystems.core.data_source.DataSource.fetch)
+    * [save](#ratingsystems.core.data_source.DataSource.save)
+    * [load](#ratingsystems.core.data_source.DataSource.load)
     * [data\_dir](#ratingsystems.core.data_source.DataSource.data_dir)
     * [data\_path](#ratingsystems.core.data_source.DataSource.data_path)
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
-    * [save](#ratingsystems.core.data_source.DataSource.save)
-    * [load](#ratingsystems.core.data_source.DataSource.load)
     * [Meta](#ratingsystems.core.data_source.DataSource.Meta)
 * [ratingsystems.core.model.bracket](#ratingsystems.core.model.bracket)
   * [dataclass](#ratingsystems.core.model.bracket.dataclass)
@@ -1028,13 +1027,13 @@ ratingsystems fetch --data <datasource>
 class DataSource(ABC)
 ```
 
-<a id="ratingsystems.core.data_source.DataSource.cli"></a>
+Abstract class used to create a data source.
 
-#### cli
+Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) must implement a [`fetch`](#ratingsystems.core.data_source.DataSource.fetch) method which returns a list of [`Game`](#ratingsystems.core.data_source.Game).
 
-```python
-def cli(context)
-```
+Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) must also implement a [`Meta`](#ratingsystems.core.data_source.DataSource.Meta) class. See [`Meta`](#ratingsystems.core.data_source.DataSource.Meta) class below for more details.
+
+Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) can accept any options to __init__, but they must have a default value, and it must accept a year (int) as its first argument.
 
 <a id="ratingsystems.core.data_source.DataSource.fetch"></a>
 
@@ -1044,6 +1043,40 @@ def cli(context)
 @abstractmethod
 def fetch() -> list[Game]
 ```
+
+Method to fetch game data.
+
+**Returns**:
+
+  list of [`Game`](#ratingsystems.core.data_source.Game) objects
+
+<a id="ratingsystems.core.data_source.DataSource.save"></a>
+
+#### save
+
+```python
+def save(games: list[Game])
+```
+
+Save game data to local disk.
+
+**Arguments**:
+
+- `games` _list[[`Game`](#ratingsystems.core.data_source.Game)]_ - list of games
+
+<a id="ratingsystems.core.data_source.DataSource.load"></a>
+
+#### load
+
+```python
+def load(incomplete: bool = True) -> list[Game]
+```
+
+Load game data from local disk.
+
+**Returns**:
+
+  list of [`Game`](#ratingsystems.core.data_source.Game)
 
 <a id="ratingsystems.core.data_source.DataSource.data_dir"></a>
 
@@ -1079,22 +1112,6 @@ def auth_token() -> str
 ```python
 @auth_token.setter
 def auth_token(value: str)
-```
-
-<a id="ratingsystems.core.data_source.DataSource.save"></a>
-
-#### save
-
-```python
-def save(games: list[Game])
-```
-
-<a id="ratingsystems.core.data_source.DataSource.load"></a>
-
-#### load
-
-```python
-def load(incomplete: bool = True) -> list[Game]
 ```
 
 <a id="ratingsystems.core.data_source.DataSource.Meta"></a>
@@ -1688,7 +1705,7 @@ A predictor can be used by calling the [`Predictor.predict`](#ratingsystems.core
 
 This is also exposed via the CLI command `predict`, which can be called like this:
 ```bash
-ratingsystems predict --data <datasource> --rating <ratingsystem> --predictor <predictor> TEAM OPPONENT
+ratingsystems predict TEAM OPPONENT --data <datasource> --rating <ratingsystem> --predictor <predictor>
 ```
 
 <a id="ratingsystems.core.predictor.st"></a>
@@ -1751,6 +1768,18 @@ Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor)
 @abstractmethod
 def predict(team: str, opponent: str) -> Prediction
 ```
+
+Method to predict a matchup of two teams.
+
+**Arguments**:
+
+- `team` _str_ - first team of the matchup
+- `opponent` _str_ - second team of the matchup
+  
+
+**Returns**:
+
+  [`Prediction`](#ratingsystems.core.predictor.Prediction) object with prediction for the matchup
 
 <a id="ratingsystems.core.predictor.Predictor.Meta"></a>
 

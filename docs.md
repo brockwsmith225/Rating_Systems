@@ -670,7 +670,7 @@ def filter_options(options: dict[str, Any], cls: Type)
 
 <a id="ratingsystems.core.cli.helpers.SelectChoice"></a>
 
-## SelectChoice Objects
+## SelectChoice
 
 ```python
 class SelectChoice(click.Choice)
@@ -688,7 +688,7 @@ def convert(value: Optional[str] = None,
 
 <a id="ratingsystems.core.cli.helpers.WeightedSelectChoice"></a>
 
-## WeightedSelectChoice Objects
+## WeightedSelectChoice
 
 ```python
 class WeightedSelectChoice(SelectChoice)
@@ -706,7 +706,7 @@ def convert(value: Optional[str] = None,
 
 <a id="ratingsystems.core.cli.helpers.KeyValuePair"></a>
 
-## KeyValuePair Objects
+## KeyValuePair
 
 ```python
 class KeyValuePair(click.ParamType)
@@ -1022,7 +1022,7 @@ ratingsystems fetch --data <datasource>
 
 <a id="ratingsystems.core.data_source.DataSource"></a>
 
-## DataSource Objects
+## DataSource
 
 ```python
 class DataSource(ABC)
@@ -1099,7 +1099,7 @@ def load(incomplete: bool = True) -> list[Game]
 
 <a id="ratingsystems.core.data_source.DataSource.Meta"></a>
 
-## Meta Objects
+## Meta
 
 ```python
 class Meta()
@@ -1147,7 +1147,7 @@ class Meta()
 
 <a id="ratingsystems.core.model.bracket.Bracket"></a>
 
-## Bracket Objects
+## Bracket
 
 ```python
 @dataclass
@@ -1257,7 +1257,7 @@ def full_odds() -> Dict[str, Tuple[str, str, int, List[float]]]
 
 <a id="ratingsystems.core.model.game.GameStats"></a>
 
-## GameStats Objects
+## GameStats
 
 ```python
 @dataclass
@@ -1274,7 +1274,7 @@ class GameStats()
 
 <a id="ratingsystems.core.model.game.Game"></a>
 
-## Game Objects
+## Game
 
 ```python
 @dataclass
@@ -1387,7 +1387,7 @@ class Game()
 
 <a id="ratingsystems.core.model.prediction.Prediction"></a>
 
-## Prediction Objects
+## Prediction
 
 ```python
 class Prediction()
@@ -1471,7 +1471,7 @@ class Prediction()
 
 <a id="ratingsystems.core.model.rating.Rating"></a>
 
-## Rating Objects
+## Rating
 
 ```python
 class Rating()
@@ -1587,7 +1587,7 @@ def rank(rating: Self, reverse: bool = False) -> list[Tuple[str, Stat]]
 
 <a id="ratingsystems.core.model.stat.Stat"></a>
 
-## Stat Objects
+## Stat
 
 ```python
 class Stat()
@@ -1623,7 +1623,7 @@ def formatted(precision: int = 1) -> str
 
 <a id="ratingsystems.core.model.team_rating.TeamRating"></a>
 
-## TeamRating Objects
+## TeamRating
 
 ```python
 class TeamRating()
@@ -1729,7 +1729,7 @@ ratingsystems predict --data <datasource> --rating <ratingsystem> --predictor <p
 
 <a id="ratingsystems.core.predictor.Predictor"></a>
 
-## Predictor Objects
+## Predictor
 
 ```python
 class Predictor(ABC)
@@ -1754,7 +1754,7 @@ def predict(team: str, opponent: str) -> Prediction
 
 <a id="ratingsystems.core.predictor.Predictor.Meta"></a>
 
-## Meta Objects
+## Meta
 
 ```python
 class Meta()
@@ -1766,7 +1766,7 @@ class Meta()
 
 <a id="ratingsystems.core.predictor.AggregatePredictor"></a>
 
-## AggregatePredictor Objects
+## AggregatePredictor
 
 ```python
 class AggregatePredictor()
@@ -1782,7 +1782,7 @@ def predict(team: str, opponent: str) -> Prediction
 
 <a id="ratingsystems.core.predictor.RatingDifferencePredictor"></a>
 
-## RatingDifferencePredictor Objects
+## RatingDifferencePredictor
 
 ```python
 class RatingDifferencePredictor(Predictor)
@@ -1839,7 +1839,7 @@ ratingsystems rate --data <datasource> --rating <ratingsystem>
 
 <a id="ratingsystems.core.rating_system.RatingSystem"></a>
 
-## RatingSystem Objects
+## RatingSystem
 
 ```python
 class RatingSystem(ABC)
@@ -1875,7 +1875,7 @@ Method to create a rating based on game data.
 
 <a id="ratingsystems.core.rating_system.RatingSystem.Meta"></a>
 
-## Meta Objects
+## Meta
 
 ```python
 class Meta()

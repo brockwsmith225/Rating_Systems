@@ -5,7 +5,7 @@ A predictor can be used by calling the #Predictor.predict function with a team a
 
 This is also exposed via the CLI command `predict`, which can be called like this:
 ```bash
-ratingsystems predict --data <datasource> --rating <ratingsystem> --predictor <predictor> TEAM OPPONENT
+ratingsystems predict TEAM OPPONENT --data <datasource> --rating <ratingsystem> --predictor <predictor>
 ```
 """
 import scipy.stats as st
@@ -35,6 +35,16 @@ class Predictor(ABC):
 
     @abstractmethod
     def predict(self, team: str, opponent: str) -> Prediction:
+        """
+        Method to predict a matchup of two teams.
+
+        Args:
+            team (str): first team of the matchup
+            opponent (str): second team of the matchup
+
+        Returns:
+            #Prediction object with prediction for the matchup
+        """
         raise NotImplementedError()
 
     def __str__(self) -> str:

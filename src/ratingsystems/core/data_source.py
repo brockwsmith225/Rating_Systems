@@ -19,17 +19,57 @@ from ratingsystems.core.util import config_path
 
 
 class DataSource(ABC):
+    """
+    Abstract class used to create a data source.
+
+    Classes that inherit from #DataSource must implement a #fetch method which returns a list of #Game.
+    
+    Classes that inherit from #DataSource must also implement a #Meta class. See #Meta class below for more details.
+
+    Classes that inherit from #DataSource can accept any options to __init__, but they must have a default value, and it must accept a year (int) as its first argument.
+    """
 
     def __init__(self, year: int):
         self.year = year
 
-    def cli(self, context):
-        games = self.fetch()
-        self.save(games)
-
     @abstractmethod
     def fetch(self) -> list[Game]:
+        """
+        Method to fetch game data.
+
+        Returns:
+            list of #Game objects
+        """
         raise NotImplementedError()
+
+    def save(self, games: list[Game]):
+        """
+        Save game data to local disk.
+
+        Args:
+            games (list[#Game]): list of games
+        """
+        with open(self.data_path, "w") as f:
+            json.dump([asdict(game) for game in games], f, default=str)
+
+    def load(self, incomplete: bool = True) -> list[Game]:
+        """
+        Load game data from local disk.
+
+        Returns:
+            list of #Game
+        """
+        if not os.path.exists(self.data_path):
+            raise FileNotFoundError(f"No data found on local device for {self.Meta.name} {self.year}")
+
+        with open(self.data_path, "r") as f:
+            if hasattr(self.Meta, "stats_class"):
+                games = [Game(**game, stats_class=self.Meta.stats_class) for game in json.load(f)]
+            else:
+                games = [Game(**game) for game in json.load(f)]
+        if not incomplete:
+            return [game for game in games if game.complete]
+        return games
 
     @property
     def data_dir(self) -> str:
@@ -60,24 +100,6 @@ class DataSource(ABC):
             os.mkdir(os.path.dirname(auth_path))
         with open(auth_path, "w") as f:
             f.write(value)
-
-
-    def save(self, games: list[Game]):
-        with open(self.data_path, "w") as f:
-            json.dump([asdict(game) for game in games], f, default=str)
-
-    def load(self, incomplete: bool = True) -> list[Game]:
-        if not os.path.exists(self.data_path):
-            raise FileNotFoundError(f"No data found on local device for {self.Meta.name} {self.year}")
-
-        with open(self.data_path, "r") as f:
-            if hasattr(self.Meta, "stats_class"):
-                games = [Game(**game, stats_class=self.Meta.stats_class) for game in json.load(f)]
-            else:
-                games = [Game(**game) for game in json.load(f)]
-        if not incomplete:
-            return [game for game in games if game.complete]
-        return games
 
     def __str__(self) -> str:
         return self.Meta.name

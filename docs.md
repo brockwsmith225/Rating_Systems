@@ -1015,10 +1015,11 @@ Class representing a rating of teams. This class also provides many helpful func
 Parameters:
 - **rating** *(dict[str, [`Stat`](#ratingsystems.core.model.stat.Stat)])* - mapping of team names to ratings, ratings should be represented by a [`Stat`](#ratingsystems.core.model.stat.Stat) object
 - **games** *(list[Game])* - list of games used to generate this rating
-- **name** *(str)* - name of the rating; when transforming [`Rating`](#ratingsystems.core.model.rating.Rating) objects through arithmetic operators, [`Rating`](#ratingsystems.core.model.rating.Rating) objects with names will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)
+- **name** *(str)* - name of the rating; when transforming [`Rating`](#ratingsystems.core.model.rating.Rating) objects through arithmetic operators, [`Rating`](#ratingsystems.core.model.rating.Rating) objects with names will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name; names that begin with an underscore ('_') will be hidden and will not appear unless explicitly requested (default: None)
 - **stat_class** *(Type[Stat])* - Stat type that, if specified, is used to convert ratings (default: None)
 - **\*\*auxillary_data** - additional fields to be stored on the [`Rating`](#ratingsystems.core.model.rating.Rating); this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
 
+[`Rating`](#ratingsystems.core.model.rating.Rating) objects are iterable. Iterating on a [`Rating`](#ratingsystems.core.model.rating.Rating) object will yield a [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) representing each team.
 
 All of the arithmetic operators work on [`Rating`](#ratingsystems.core.model.rating.Rating) objects just like regular numbers. The result of these arithmetic operators will be a new [`Rating`](#ratingsystems.core.model.rating.Rating) object that contains the original ratings transformed by the arithmetic operation.<br>
 ```(rating + 1).get_value(team) == rating.get_value(team) + 1```<br>
@@ -1033,15 +1034,15 @@ This can be used to create new ratings that are combinations of existing ratings
 
 The following useful operations can also be achieved using other operators.
 
-You can add or change the name of a [`Rating`](#ratingsystems.core.model.rating.Rating) object using the modulo operator (%)<br>
+You can add or change the name of a [`Rating`](#ratingsystems.core.model.rating.Rating) object using the modulo operator ('%')<br>
 ```rating = (rating1 + rating2) % "new_name"```<br>
 This can be especially useful when combined with the arithmetic operators to give names to the new ratings you're creating.
 
-You can add a [`Rating`](#ratingsystems.core.model.rating.Rating) object as a sub rating of another [`Rating`](#ratingsystems.core.model.rating.Rating) object using the left shift operator (<<)<br>
+You can add a [`Rating`](#ratingsystems.core.model.rating.Rating) object as a sub rating of another [`Rating`](#ratingsystems.core.model.rating.Rating) object using the left shift operator ('<<')<br>
 ```rating = (rating1 + rating2) << sub_rating```<br>
 This can be useful to add additional ratings that weren't used in calculating your rating. (Note: the sub rating must have a name, otherwise this operation will fail) 
-test
-You can cast the ratings of a [`Rating`](#ratingsystems.core.model.rating.Rating) object to a different [`Stat`](#ratingsystems.core.model.stat.Stat) class using the or operator (|)<br>
+
+You can cast the ratings of a [`Rating`](#ratingsystems.core.model.rating.Rating) object to a different [`Stat`](#ratingsystems.core.model.stat.Stat) class using the or operator ('|')<br>
 ```> rating = (rating1 + rating2) | Stat```<br>
 This can be useful when you are combining two ratings with one [`Stat`](#ratingsystems.core.model.stat.Stat) type, but wish for the resulting rating to be a different [`Stat`](#ratingsystems.core.model.stat.Stat) type.
 
@@ -1053,6 +1054,14 @@ This can be useful when you are combining two ratings with one [`Stat`](#ratings
 def get(team: str) -> Stat
 ```
 
+Get a rating for a team.
+
+Args:
+    team (str): team name to get the rating for
+
+Returns:
+    [`Stat`](#ratingsystems.core.model.stat.Stat) representing the rating of the team
+
 <a id="ratingsystems.core.model.rating.Rating.get_value"></a>
 
 ### get\_value
@@ -1060,6 +1069,14 @@ def get(team: str) -> Stat
 ```python
 def get_value(team: str) -> Number
 ```
+
+Get a rating value for a team.
+
+Args:
+    team (str): team name to get the rating for
+
+Returns:
+    float representation of the rating of the team
 
 <a id="ratingsystems.core.model.rating.Rating.get_zscore"></a>
 
@@ -1069,6 +1086,14 @@ def get_value(team: str) -> Number
 def get_zscore(team: str) -> Number
 ```
 
+Get the Z-score of a rating for a team.
+
+Args:
+    team (str): team name to get the Z-score for
+
+Returns:
+    Number representation of the Z-score of the rating of the team
+
 <a id="ratingsystems.core.model.rating.Rating.get_team"></a>
 
 ### get\_team
@@ -1076,6 +1101,14 @@ def get_zscore(team: str) -> Number
 ```python
 def get_team(team: str) -> TeamRating
 ```
+
+Get a team and all of their ratings.
+
+Args:
+    team (str): team name to get
+
+Returns:
+    [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) representation of the team and all their ratings
 
 <a id="ratingsystems.core.model.rating.Rating.confidence_interval"></a>
 
@@ -1086,6 +1119,8 @@ def get_team(team: str) -> TeamRating
 def confidence_interval() -> float
 ```
 
+Property reprenting the confidence interval of the rating. Calculated as the standard deviation of the difference between the rating difference and the margin of victory for each game. Useful for creating odds from a predicted line or a line from predicted odds.
+
 <a id="ratingsystems.core.model.rating.Rating.mean"></a>
 
 ### mean
@@ -1094,6 +1129,8 @@ def confidence_interval() -> float
 @property
 def mean() -> float
 ```
+
+Property reprenting the mean of the rating.
 
 <a id="ratingsystems.core.model.rating.Rating.stdev"></a>
 
@@ -1104,6 +1141,8 @@ def mean() -> float
 def stdev() -> float
 ```
 
+Property reprenting the standard deviation of the rating.
+
 <a id="ratingsystems.core.model.rating.Rating.keys"></a>
 
 ### keys
@@ -1111,6 +1150,8 @@ def stdev() -> float
 ```python
 def keys() -> Iterable[str]
 ```
+
+Iterator for the rating keys, which corresponds to the team names.
 
 <a id="ratingsystems.core.model.rating.Rating.teams"></a>
 
@@ -1120,6 +1161,8 @@ def keys() -> Iterable[str]
 def teams() -> Iterable[str]
 ```
 
+Iterator for the teams included in the rating.
+
 <a id="ratingsystems.core.model.rating.Rating.ratings"></a>
 
 ### ratings
@@ -1127,6 +1170,11 @@ def teams() -> Iterable[str]
 ```python
 def ratings(hidden: bool = False) -> Iterable[Self]
 ```
+
+Iterator for the ratings, which gives a [`Rating`](#ratingsystems.core.model.rating.Rating) object for this object and each sub rating, recursively.
+
+Args:
+    hidden (bool): include hidden ratings, i.e. ones whose name begins with an underscore ('_')
 
 <a id="ratingsystems.core.model.rating.Rating.rank"></a>
 

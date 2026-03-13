@@ -21,10 +21,11 @@ class Rating():
     Parameters:
     - **rating** *(dict[str, #Stat])* - mapping of team names to ratings, ratings should be represented by a #Stat object
     - **games** *(list[Game])* - list of games used to generate this rating
-    - **name** *(str)* - name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)
+    - **name** *(str)* - name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore ('_') will be hidden and will not appear unless explicitly requested (default: None)
     - **stat_class** *(Type[Stat])* - Stat type that, if specified, is used to convert ratings (default: None)
     - **\\*\\*auxillary_data** - additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
     
+    #Rating objects are iterable. Iterating on a #Rating object will yield a #TeamRating representing each team.
 
     All of the arithmetic operators work on #Rating objects just like regular numbers. The result of these arithmetic operators will be a new #Rating object that contains the original ratings transformed by the arithmetic operation.<br>
     ```(rating + 1).get_value(team) == rating.get_value(team) + 1```<br>
@@ -39,15 +40,15 @@ class Rating():
     
     The following useful operations can also be achieved using other operators.
 
-    You can add or change the name of a #Rating object using the modulo operator (%)<br>
+    You can add or change the name of a #Rating object using the modulo operator ('%')<br>
     ```rating = (rating1 + rating2) % "new_name"```<br>
     This can be especially useful when combined with the arithmetic operators to give names to the new ratings you're creating.
 
-    You can add a #Rating object as a sub rating of another #Rating object using the left shift operator (<<)<br>
+    You can add a #Rating object as a sub rating of another #Rating object using the left shift operator ('<<')<br>
     ```rating = (rating1 + rating2) << sub_rating```<br>
     This can be useful to add additional ratings that weren't used in calculating your rating. (Note: the sub rating must have a name, otherwise this operation will fail) 
 
-    You can cast the ratings of a #Rating object to a different #Stat class using the or operator (|)<br>
+    You can cast the ratings of a #Rating object to a different #Stat class using the or operator ('|')<br>
     ```> rating = (rating1 + rating2) | Stat```<br>
     This can be useful when you are combining two ratings with one #Stat type, but wish for the resulting rating to be a different #Stat type.
     """
@@ -95,17 +96,53 @@ class Rating():
                 self._sub_ratings[name] = data
 
     def get(self, team: str) -> Stat:
+        """
+        Get a rating for a team.
+
+        Args:
+            team (str): team name to get the rating for
+
+        Returns:
+            #Stat representing the rating of the team
+        """
         if self._stat_class:
             return self._stat_class(self._rating.get(team).value)
         return self._rating.get(team)
 
     def get_value(self, team: str) -> Number:
+        """
+        Get a rating value for a team.
+
+        Args:
+            team (str): team name to get the rating for
+
+        Returns:
+            float representation of the rating of the team
+        """
         return self.get(team).value
 
     def get_zscore(self, team: str) -> Number:
+        """
+        Get the Z-score of a rating for a team.
+
+        Args:
+            team (str): team name to get the Z-score for
+
+        Returns:
+            Number representation of the Z-score of the rating of the team
+        """
         return (self.get_value(team) - self.mean) / self.stdev
 
     def get_team(self, team: str) -> TeamRating:
+        """
+        Get a team and all of their ratings.
+
+        Args:
+            team (str): team name to get
+
+        Returns:
+            #TeamRating representation of the team and all their ratings
+        """
         return TeamRating(
             name=team,
             rating=self.get(team),
@@ -116,6 +153,9 @@ class Rating():
 
     @property
     def confidence_interval(self) -> float:
+        """
+        Property reprenting the confidence interval of the rating. Calculated as the standard deviation of the difference between the rating difference and the margin of victory for each game. Useful for creating odds from a predicted line or a line from predicted odds.
+        """
         if self._confidence_interval is not None:
             return self._confidence_interval
         if not self.games:
@@ -125,6 +165,9 @@ class Rating():
 
     @property
     def mean(self) -> float:
+        """
+        Property reprenting the mean of the rating.
+        """
         if self._mean is not None:
             return self._mean
         ratings_values = [team.rating.value for team in self]
@@ -133,6 +176,9 @@ class Rating():
 
     @property
     def stdev(self) -> float:
+        """
+        Property reprenting the standard deviation of the rating.
+        """
         if self._stdev is not None:
             return self._stdev
         ratings_values = [team.rating.value for team in self]
@@ -146,12 +192,24 @@ class Rating():
         return iter(team_ratings)
 
     def keys(self) -> Iterable[str]:
+        """
+        Iterator for the rating keys, which corresponds to the team names.
+        """
         return self._rating.keys()
 
     def teams(self) -> Iterable[str]:
+        """
+        Iterator for the teams included in the rating.
+        """
         return self.keys()
 
     def ratings(self, hidden: bool = False) -> Iterable[Self]:
+        """
+        Iterator for the ratings, which gives a #Rating object for this object and each sub rating, recursively.
+
+        Args:
+            hidden (bool): include hidden ratings, i.e. ones whose name begins with an underscore ('_')
+        """
         return iter([self] + [rating for r in self._sub_ratings.values() for rating in r.ratings(hidden=hidden) if hidden or not r.name.startswith("_")])
 
     def __add__(self, other: Any) -> Self:

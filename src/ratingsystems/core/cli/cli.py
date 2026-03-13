@@ -110,8 +110,8 @@ def set_defaults(context: click.Context, new_parameters: Optional[dict[str, Any]
         for param, value in new_parameters.items():
             if isclass(value):
                 parameters[param] = value.name
-            # elif isinstance(value, tuple):
-            #     parameters[param] = context.default_map.get(param, ()) + value
+            elif isinstance(value, tuple):
+                parameters[param] = tuple([v.name if isclass(v) else v for v in value])
             elif isinstance(value, dict):
                 parameters[param] = {k: v for k, v in {**context.default_map.get(param, {}), **value}.items() if v is not None}
             else:

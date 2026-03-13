@@ -3,11 +3,32 @@ from typing import Any, Self
 
 
 class Stat():
+    """
+    Class representing a rating stat. This provides a way to format a rating. 
+
+    Classes can inherit from #Stat and override the #formatted method to format for different ratings.
+
+    Parameters:
+    - `value`_float_ - value of the stat
+
+    #Stat objects can still be used with any arithmetic operator the same way as a number.
+
+    #Stat objects can be formatted by calling the #formatted method or casting it to a string.
+    """
 
     def __init__(self, value: float):
         self.value = value
 
     def formatted(self, precision: int = 1) -> str:
+        """
+        Formats the value of the #Stat.
+
+        Args:
+            precision (int): number of decimal places to round the value to (default: 1)
+
+        Returns:
+            string representation of the formatted value
+        """
         return f"%.{precision}f" % round(self.value, precision)
 
     def __str__(self) -> str:

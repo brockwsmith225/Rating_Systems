@@ -31,7 +31,7 @@ class Predictor(ABC):
     """
 
     name: str = ""
-    "_str_ Name of predictor; will be used by the CLI, so ideally this is short"
+    "(str) Name of predictor; will be used by the CLI, so ideally this is short"
 
     def __init__(self, rating: Rating):
         self.rating = rating

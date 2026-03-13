@@ -126,7 +126,6 @@
 * [ratingsystems.core.model.team\_rating](#ratingsystems.core.model.team_rating)
   * [TeamRating](#ratingsystems.core.model.team_rating.TeamRating)
     * [ratings](#ratingsystems.core.model.team_rating.TeamRating.ratings)
-    * [combine](#ratingsystems.core.model.team_rating.TeamRating.combine)
 * [ratingsystems.core.model](#ratingsystems.core.model)
 * [ratingsystems.core.predictor](#ratingsystems.core.predictor)
   * [Predictor](#ratingsystems.core.predictor.Predictor)
@@ -1214,6 +1213,18 @@ def rank(rating: Self, reverse: bool = False) -> list[Tuple[str, Stat]]
 class Stat()
 ```
 
+Class representing a rating stat. This provides a way to format a rating.
+
+Classes can inherit from [`Stat`](#ratingsystems.core.model.stat.Stat) and override the `formatted` method to format for different ratings.
+
+**Arguments**:
+
+  - `value`_float_ - value of the stat
+  
+  [`Stat`](#ratingsystems.core.model.stat.Stat) objects can still be used with any arithmetic operator the same way as a number.
+  
+  [`Stat`](#ratingsystems.core.model.stat.Stat) objects can be formatted by calling the `formatted` method or casting it to a string.
+
 <a id="ratingsystems.core.model.stat.Stat.formatted"></a>
 
 ### formatted
@@ -1221,6 +1232,17 @@ class Stat()
 ```python
 def formatted(precision: int = 1) -> str
 ```
+
+Formats the value of the [`Stat`](#ratingsystems.core.model.stat.Stat).
+
+**Arguments**:
+
+- `precision` _int_ - number of decimal places to round the value to (default: 1)
+  
+
+**Returns**:
+
+  string representation of the formatted value
 
 <a id="ratingsystems.core.model.team_rating"></a>
 
@@ -1234,6 +1256,17 @@ def formatted(precision: int = 1) -> str
 class TeamRating()
 ```
 
+Class representing a team and its ratings. This includes any sub ratings of the [`Rating`](#ratingsystems.core.model.rating.Rating) that produced this [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating).
+
+**Arguments**:
+
+  - `name` _str_ - name of the team
+  - `rating` _Stat_ -
+  - `wins` _int_ - number of games the team has won
+  - `losses` _int_ - number of games the team has lost
+  - `ties` _int_ - number of games the team has tied
+  - `**sub_rating` - additional [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) objects to be stored as sub ratings for the [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating); can be accessed via a property based on the name of the [`Rating`](#ratingsystems.core.model.rating.Rating) that produced the [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating)
+
 <a id="ratingsystems.core.model.team_rating.TeamRating.ratings"></a>
 
 ### ratings
@@ -1242,14 +1275,11 @@ class TeamRating()
 def ratings(hidden: bool = False) -> Iterable[Stat]
 ```
 
-<a id="ratingsystems.core.model.team_rating.TeamRating.combine"></a>
+Iterator for the ratings, which gives a [`Rating`](#ratingsystems.core.model.rating.Rating) object for this team's rating and all sub ratings.
 
-### combine
+**Arguments**:
 
-```python
-@staticmethod
-def combine(*ratings, rating: Optional[Stat] = None, **sub_ratings)
-```
+- `hidden` _bool_ - include hidden ratings, i.e. ones whose name begins with an underscore ('_')
 
 <a id="ratingsystems.core.model"></a>
 
@@ -1288,7 +1318,7 @@ Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor)
 
 ### name
 
-_str_ Name of predictor; will be used by the CLI, so ideally this is short
+(str) Name of predictor; will be used by the CLI, so ideally this is short
 
 <a id="ratingsystems.core.predictor.Predictor.predict"></a>
 

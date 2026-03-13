@@ -24,7 +24,7 @@ predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({Ra
 options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="Set an option to be passed to any plugin that accepts it, can be set multiple times, see specific plugin documentation for what options are available")
 
 
-def load_cli_plugins():
+def _load_cli_plugins():
     # TODO: handle without needing entry points defined?
     # import ratingsystems
     # for m in pkgutil.iter_modules(ratingsystems.__path__):
@@ -48,7 +48,7 @@ def load_cli_plugins():
 @options
 @click.pass_context
 def cli(
-    context,
+    context: click.Context,
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
     ratingsystem: Optional[RatingSystem] = None,
@@ -74,7 +74,7 @@ def cli(
 @options
 @click.pass_context
 def config(
-    context,
+    context: click.Context,
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
     ratingsystem: Optional[RatingSystem] = None,
@@ -99,7 +99,7 @@ def config(
             click.echo(f"options={options}")
 
 
-def set_defaults(context, new_parameters: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+def set_defaults(context: click.Context, new_parameters: Optional[dict[str, Any]] = None) -> dict[str, Any]:
     if context.parent is not None:
         context.default_map = set_defaults(context.parent, context.params)
     else:
@@ -129,11 +129,13 @@ def set_defaults(context, new_parameters: Optional[dict[str, Any]] = None) -> di
 @cli.command()
 @year
 @datasource
+@click.option("--bracket", type=bool, is_flag=True, default=False, help="Fetch bracket instead of game data")
 @click.pass_context
 def fetch(
-    context,
+    context: click.Context,
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
+    bracket: bool = False,
 ):
     """
     Used to fetch data.
@@ -148,21 +150,39 @@ def fetch(
         click.echo(f"No auth token found for data source {datasource.name}")
         data.auth_token = click.prompt("Auth token", type=str, hide_input=True)
 
-    try:
-        click.echo(f"Fetching data for {datasource.name} {year} ...")
-        games = data.fetch()
-        click.echo(f"Fetched data: {len(games)} games")
-    except Exception as e:
-        click.echo(f"Error in fetching data for {datasource.name} {year}: {e}")
-        context.exit(1)
+    if bracket:
+        try:
+            click.echo(f"Fetching bracket for {datasource.name} {year} ...")
+            bracket = data.fetch_bracket()
+            click.echo("Fetched bracket")
+        except Exception as e:
+            click.echo(f"Error in fetching bracket for {datasource.name} {year}: {e}")
+            context.exit(1)
 
-    try:
-        click.echo("Saving data ...")
-        data.save(games)
-        click.echo("Saved data")
-    except Exception as e:
-        click.echo(f"Error in saving data for {datasource.name} {year}: {e}")
-        context.exit(1)
+        try:
+            click.echo("Saving bracket ...")
+            data.save_bracket(bracket)
+            click.echo("Saved bracket")
+        except Exception as e:
+            click.echo(f"Error in saving bracket for {datasource.name} {year}: {e}")
+            context.exit(1)
+
+    else:
+        try:
+            click.echo(f"Fetching data for {datasource.name} {year} ...")
+            games = data.fetch()
+            click.echo(f"Fetched data: {len(games)} games")
+        except Exception as e:
+            click.echo(f"Error in fetching data for {datasource.name} {year}: {e}")
+            context.exit(1)
+
+        try:
+            click.echo("Saving data ...")
+            data.save(games)
+            click.echo("Saved data")
+        except Exception as e:
+            click.echo(f"Error in saving data for {datasource.name} {year}: {e}")
+            context.exit(1)
 
 
 @cli.command()
@@ -175,7 +195,7 @@ def fetch(
 @click.option("--hidden/--no-hidden", type=bool, is_flag=True, default=False, help="Include hidden ratings in output")
 @click.pass_context
 def rate(
-    context,
+    context: click.Context,
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
     ratingsystem: Optional[RatingSystem] = None,
@@ -187,35 +207,9 @@ def rate(
     """
     Used to create a rating.
     """
-    if datasource is None:
-        click.echo("Input Error: must specify a data source (-d, --data)")
-        context.exit(1)
+    games = _load_games(context, datasource, year)
 
-    if ratingsystem is None:
-        click.echo("Input Error: must specify a rating system (-r, --rating)")
-        context.exit(1)
-
-    data = datasource(year)
-
-    # Try to load data
-    try:
-        games = data.load(incomplete=False)
-    except Exception as e:
-        click.echo(f"Error in loading data for {datasource.name} {year}: {e}")
-        context.exit(1)
-
-    rs = ratingsystem(**filter_options(options, ratingsystem))
-
-    try:
-        rating = rs.rate(games)
-    except Exception as e:
-        click.echo(f"Error in creating rating for {ratingsystem.name} {year}: {e}")
-        context.exit(1)
-
-    # Store rating for shell mode
-    context.obj["ratings"][rs.name] = rating
-
-    # TODO: add rankings
+    rating = _create_rating(context, ratingsystem, options, games)
 
     if pretty:
         click.echo(f"{rjustify('RANK', 4)} | {ljustify('TEAM', 30)} | {center('RECORD', 7)} | {' | '.join([center(r.name.upper(), 10) for r in rating.ratings(hidden=hidden)])}")
@@ -241,7 +235,7 @@ def rate(
 @options
 @click.pass_context
 def predict(
-    context,
+    context: click.Context,
     team: str,
     opponent: str,
     year: int = datetime.now().year,
@@ -257,12 +251,65 @@ def predict(
       TEAM first team in the matchup
       OPPONENT second team in the matchup
     """
-    if datasource is None:
-        click.echo("Input Error: must specify a data source (-d, --data)")
+    games = _load_games(context, datasource, year)
+
+    rating = _create_rating(context, ratingsystem, options, games, load_rating=True)
+
+    prediction = _create_prediction(context, predictor, options, rating, team, opponent)
+
+    click.echo(prediction)
+
+
+@cli.group(invoke_without_command=True)
+@year
+@datasource
+@ratingsystem
+@predictor
+@options
+@click.option("--display/--no-display", type=bool, is_flag=True, default=False, help="Display bracket with picks instead of a table of odds")
+@click.option("--pretty/--no-pretty", type=bool, is_flag=True, default=False, help="Pretty print bracket odds")
+@click.pass_context
+def bracket(
+    context: click.Context,
+    year: int = datetime.now().year,
+    datasource: Optional[DataSource] = None,
+    ratingsystem: Optional[RatingSystem] = None,
+    predictor: Optional[Predictor] = None,
+    options: dict[str, Any] = {},
+    display: bool = False,
+    pretty: bool = False,
+):
+    """
+    Used to produce odds for the results of a bracket.
+    """
+    games = _load_games(context, datasource, year)
+    bracket = _load_bracket(context, datasource, year)
+
+    rating = _create_rating(context, ratingsystem, options, games, load_rating=True)
+
+    p = predictor(rating, **filter_options(options, predictor))
+
+    # Try to evaluate the bracket
+    try:
+        bracket.evaluate(p)
+    except Exception as e:
+        click.echo(f"Error in evaluating the bracket for {predictor.name} {ratingsystem.name} {datasource.name} {year}: {e}")
         context.exit(1)
 
-    if ratingsystem is None:
-        click.echo("Input Error: must specify a rating system (-r, --rating)")
+    if display:
+        click.echo(bracket)
+    else:
+        for team, value in bracket.full_odds.items():
+            region, seed, odds = value
+            if pretty:
+                click.echo(f"{rjustify(seed, 4)} | {ljustify(team, 30)} | {center(rating.get(team).formatted(), 10)} | {center(region, 10)} | {' | '.join([center(str(round(o * 100, 1)) + '%', 10) for o in odds])}")
+            else:
+                click.echo(f"{seed},{team},{rating.get_value(team)},{region},{','.join([str(o) for o in odds])}")
+
+
+def _load_games(context: click.Context, datasource: Type[DataSource], year: int) -> list[Game]:
+    if datasource is None:
+        click.echo("Input Error: must specify a data source (-d, --data)")
         context.exit(1)
 
     data = datasource(year)
@@ -274,31 +321,65 @@ def predict(
         click.echo(f"Error in loading data for {datasource.name} {year}: {e}")
         context.exit(1)
 
-    if ratingsystem.name in context.obj["ratings"]:
+    return games
+
+
+def _load_bracket(context: click.Context, datasource: Type[DataSource], year: int) -> list[Game]:
+    if datasource is None:
+        click.echo("Input Error: must specify a data source (-d, --data)")
+        context.exit(1)
+
+    data = datasource(year)
+
+    # Try to load bracket
+    try:
+        bracket = data.load_bracket()
+    except Exception as e:
+        click.echo(f"Error in loading bracket for {datasource.name} {year}: {e}")
+        context.exit(1)
+
+    return bracket
+
+
+def _create_rating(context: click.Context, ratingsystem: Type[RatingSystem], options: dict[str, Any], games: list[Game], save_rating: bool = True, load_rating: bool = False) -> Rating:
+    if ratingsystem is None:
+        click.echo("Input Error: must specify a rating system (-r, --rating)")
+        context.exit(1)
+
+    if load_rating and ratingsystem.name in context.obj["ratings"]:
         # If in shell mode and we've already made a rating with this rating system, use it
-        rating = context.obj["ratings"][ratingsystem.name]
-    else:
-        rs = ratingsystem(**filter_options(options, ratingsystem))
+        return context.obj["ratings"][ratingsystem.name]
 
-        try:
-            rating = rs.rate(games)
-        except Exception as e:
-            click.echo(f"Error in creating rating for {ratingsystem.name} {datasource.name} {year}: {e}")
-            context.exit(1)
+    rs = ratingsystem(**filter_options(options, ratingsystem))
 
+    try:
+        rating = rs.rate(games)
+    except Exception as e:
+        click.echo(f"Error in creating rating for {ratingsystem.name}: {e}")
+        context.exit(1)
+
+    if save_rating:
         # Store rating for shell mode
         context.obj["ratings"][rs.name] = rating
 
-    p = predictor(rating, **filter_options(options, ratingsystem))
+    return rating
+
+
+def _create_prediction(context: click.Context, predictor: Type[Predictor], options: dict[str, Any], rating: Rating, team: str, opponent: str) -> Prediction:
+    if predictor is None:
+        click.echo("Input Error: must specify a predictor (-p, --predictor)")
+        context.exit(1)
+
+    p = predictor(rating, **filter_options(options, predictor))
 
     # Try to predict a matchup between team and opponent
     try:
         prediction = p.predict(team, opponent)
     except Exception as e:
-        click.echo(f"Error in creating prediction for {predictor.name} {ratingsystem.name} {datasource.name} {year}: {e}")
+        click.echo(f"Error in predicting {team} vs {opponent} for {predictor.name}: {e}")
         context.exit(1)
 
-    click.echo(prediction)
+    return prediction
 
 
-load_cli_plugins()
+_load_cli_plugins()

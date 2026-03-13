@@ -15,8 +15,6 @@ class ReferenceResolver(Resolver):
         self.references = {}
 
     def resolve_ref(self, scope, ref):
-        # print(ref)
-        # print(self.references[ref])
         return self.references.get(ref)
 
 resolver = ReferenceResolver()
@@ -47,6 +45,9 @@ for module in modules:
     module.members = [m for m in module.members if not hasattr(m, "target") and not m.name.startswith("_")]
     for member in module.members:
         resolver.references[member.name] = f"#{module.name}.{member.name}"
+        if hasattr(member, "members"):
+            for m in member.members:
+                resolver.references[f"{member.name}.{m.name}"] = f"#{module.name}.{member.name}.{m.name}"
 
 filter.process(modules, resolver)
 smart.process(modules, resolver)

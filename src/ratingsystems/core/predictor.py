@@ -1,7 +1,7 @@
 """
 Defines a predictor, which can be used to predict a matchup between two teams.
 
-A predictor can be used by calling the #predict function with a team and an opponent. This will return a #Prediction of the matchup.
+A predictor can be used by calling the #Predictor.predict function with a team and an opponent. This will return a #Prediction of the matchup.
 
 This is also exposed via the CLI command `predict`, which can be called like this:
 ```bash
@@ -23,7 +23,7 @@ class Predictor(ABC):
     """
     Abstract class used to create a predictor.
 
-    Classes that inherit from #Predictor must implement a #predict method which takes as input a team and an opponent and returns a #Prediction object.
+    Classes that inherit from #Predictor must implement a #Predictor.predict method which takes as input a team and an opponent and returns a #Prediction object.
 
     Classes that inherit from #Predictor can accept any options to __init__, but they must have a default value, and it must accept a #Rating as its first argument.
     
@@ -86,7 +86,15 @@ class RatingDifferencePredictor(Predictor):
     name: str = "diff"
 
     def predict(self, team: str, opponent: str) -> Prediction:
-        line = (self.rating.get_value(team) - self.rating.get_value(opponent))
+        team_rating = self.rating.get_value(team)
+        if team_rating is None:
+            raise ValueError(f"Could not find team {team}")
+
+        opponent_rating = self.rating.get_value(opponent)
+        if opponent_rating is None:
+            raise ValueError(f"Could not find team {opponent}")
+
+        line = (team_rating - opponent_rating)
         return Prediction(
             team,
             opponent,

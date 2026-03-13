@@ -1,7 +1,7 @@
 """
 Defines a rating system, which can be used to create a rating of teams.
 
-A rating system can be used by calling the #rate function with a list of #Game. This will return a #Rating of the teams.
+A rating system can be used by calling the #RatingSystem.rate function with a list of #Game. This will return a #Rating of the teams.
 
 This is also exposed via the CLI command `rate`, which can be called like this:
 ```bash
@@ -21,7 +21,7 @@ class RatingSystem(ABC):
     """
     Abstract class used to create a rating system.
 
-    Classes that inherit from #RatingSystem must implement a #rate method which takes as input a list of #Game objects and returns a #Rating object.
+    Classes that inherit from #RatingSystem must implement a #RatingSystem.rate method which takes as input a list of #Game objects and returns a #Rating object.
 
     Classes that inherit from #RatingSystem can accept any options to __init__, but they must have a default value.
     

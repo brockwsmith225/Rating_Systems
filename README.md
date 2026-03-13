@@ -30,6 +30,13 @@ ratingsystems predict TEAM OPPONENT --year <year> --data <datasource> --rating <
 Used to predict a matchup of `TEAM` and `OPPONENT` for `<year>` with data from the `<datasource>` data source and ratings from the `<ratingsystem>` rating system using the `<predictor>` predictor (Note: you must have the selected data source, rating system, and predictor installed). Any options will be passed to the rating system and predictor.
 
 
+### bracket
+```
+ratingsystems bracket --year <year> --data <datasource> --rating <ratingsystem> --predictor <predictor> --opt <opt>=<value> --opt <opt>=<value>
+```
+Used to predict the odds of the bracket for `<year>` with data from the `<datasource>` data source and ratings from the `<ratingsystem>` rating system using the `<predictor>` predictor (Note: you must have the selected data source, rating system, and predictor installed). Any options will be passed to the rating system and predictor.
+
+
 ### config
 ```
 ratingsystems config --year <year> --data <datasource> --rating <ratingsystem> --predictor <predictor> --opt <opt>=<value> --opt <opt>=<value>

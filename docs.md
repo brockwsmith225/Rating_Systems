@@ -7,13 +7,13 @@
   * [ratingsystem](#ratingsystems.core.cli.cli.ratingsystem)
   * [predictor](#ratingsystems.core.cli.cli.predictor)
   * [options](#ratingsystems.core.cli.cli.options)
-  * [load\_cli\_plugins](#ratingsystems.core.cli.cli.load_cli_plugins)
   * [cli](#ratingsystems.core.cli.cli.cli)
   * [config](#ratingsystems.core.cli.cli.config)
   * [set\_defaults](#ratingsystems.core.cli.cli.set_defaults)
   * [fetch](#ratingsystems.core.cli.cli.fetch)
   * [rate](#ratingsystems.core.cli.cli.rate)
   * [predict](#ratingsystems.core.cli.cli.predict)
+  * [bracket](#ratingsystems.core.cli.cli.bracket)
 * [ratingsystems.core.cli.helpers](#ratingsystems.core.cli.helpers)
   * [combine\_key\_value\_pairs](#ratingsystems.core.cli.helpers.combine_key_value_pairs)
   * [filter\_options](#ratingsystems.core.cli.helpers.filter_options)
@@ -51,10 +51,14 @@
     * [name](#ratingsystems.core.data_source.DataSource.name)
     * [stats\_class](#ratingsystems.core.data_source.DataSource.stats_class)
     * [fetch](#ratingsystems.core.data_source.DataSource.fetch)
+    * [fetch\_bracket](#ratingsystems.core.data_source.DataSource.fetch_bracket)
     * [save](#ratingsystems.core.data_source.DataSource.save)
     * [load](#ratingsystems.core.data_source.DataSource.load)
+    * [save\_bracket](#ratingsystems.core.data_source.DataSource.save_bracket)
+    * [load\_bracket](#ratingsystems.core.data_source.DataSource.load_bracket)
     * [data\_dir](#ratingsystems.core.data_source.DataSource.data_dir)
     * [data\_path](#ratingsystems.core.data_source.DataSource.data_path)
+    * [bracket\_path](#ratingsystems.core.data_source.DataSource.bracket_path)
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
     * [auth\_token](#ratingsystems.core.data_source.DataSource.auth_token)
 * [ratingsystems.core.model.bracket](#ratingsystems.core.model.bracket)
@@ -67,9 +71,11 @@
     * [odds](#ratingsystems.core.model.bracket.Bracket.odds)
     * [depth](#ratingsystems.core.model.bracket.Bracket.depth)
     * [teams](#ratingsystems.core.model.bracket.Bracket.teams)
-    * [predicted\_team](#ratingsystems.core.model.bracket.Bracket.predicted_team)
     * [evaluate](#ratingsystems.core.model.bracket.Bracket.evaluate)
+    * [predicted\_team](#ratingsystems.core.model.bracket.Bracket.predicted_team)
     * [full\_odds](#ratingsystems.core.model.bracket.Bracket.full_odds)
+    * [to\_file](#ratingsystems.core.model.bracket.Bracket.to_file)
+    * [from\_file](#ratingsystems.core.model.bracket.Bracket.from_file)
 * [ratingsystems.core.model.game](#ratingsystems.core.model.game)
   * [GameStats](#ratingsystems.core.model.game.GameStats)
     * [points](#ratingsystems.core.model.game.GameStats.points)
@@ -181,14 +187,6 @@
 
 ## options
 
-<a id="ratingsystems.core.cli.cli.load_cli_plugins"></a>
-
-## load\_cli\_plugins
-
-```python
-def load_cli_plugins()
-```
-
 <a id="ratingsystems.core.cli.cli.cli"></a>
 
 ## cli
@@ -203,7 +201,7 @@ def load_cli_plugins()
 @predictor
 @options
 @click.pass_context
-def cli(context,
+def cli(context: click.Context,
         year: int = datetime.now().year,
         datasource: Optional[DataSource] = None,
         ratingsystem: Optional[RatingSystem] = None,
@@ -225,7 +223,7 @@ CLI for interacting with rating systems. Use without a subcommand to start a she
 @predictor
 @options
 @click.pass_context
-def config(context,
+def config(context: click.Context,
            year: int = datetime.now().year,
            datasource: Optional[DataSource] = None,
            ratingsystem: Optional[RatingSystem] = None,
@@ -241,7 +239,7 @@ Used to set config values or see current config.
 
 ```python
 def set_defaults(
-        context,
+        context: click.Context,
         new_parameters: Optional[dict[str, Any]] = None) -> dict[str, Any]
 ```
 
@@ -253,10 +251,16 @@ def set_defaults(
 @cli.command()
 @year
 @datasource
+@click.option("--bracket",
+              type=bool,
+              is_flag=True,
+              default=False,
+              help="Fetch bracket instead of game data")
 @click.pass_context
-def fetch(context,
+def fetch(context: click.Context,
           year: int = datetime.now().year,
-          datasource: Optional[DataSource] = None)
+          datasource: Optional[DataSource] = None,
+          bracket: bool = False)
 ```
 
 Used to fetch data.
@@ -287,7 +291,7 @@ Used to fetch data.
               default=False,
               help="Include hidden ratings in output")
 @click.pass_context
-def rate(context,
+def rate(context: click.Context,
          year: int = datetime.now().year,
          datasource: Optional[DataSource] = None,
          ratingsystem: Optional[RatingSystem] = None,
@@ -313,7 +317,7 @@ Used to create a rating.
 @predictor
 @options
 @click.pass_context
-def predict(context,
+def predict(context: click.Context,
             team: str,
             opponent: str,
             year: int = datetime.now().year,
@@ -328,6 +332,40 @@ Used to predict a matchup between TEAM and OPPONENT.
 
   TEAM first team in the matchup
   OPPONENT second team in the matchup
+
+<a id="ratingsystems.core.cli.cli.bracket"></a>
+
+## bracket
+
+```python
+@cli.group(invoke_without_command=True)
+@year
+@datasource
+@ratingsystem
+@predictor
+@options
+@click.option("--display/--no-display",
+              type=bool,
+              is_flag=True,
+              default=False,
+              help="Display bracket with picks instead of a table of odds")
+@click.option("--pretty/--no-pretty",
+              type=bool,
+              is_flag=True,
+              default=False,
+              help="Pretty print bracket odds")
+@click.pass_context
+def bracket(context: click.Context,
+            year: int = datetime.now().year,
+            datasource: Optional[DataSource] = None,
+            ratingsystem: Optional[RatingSystem] = None,
+            predictor: Optional[Predictor] = None,
+            options: dict[str, Any] = {},
+            display: bool = False,
+            pretty: bool = False)
+```
+
+Used to produce odds for the results of a bracket.
 
 <a id="ratingsystems.core.cli.helpers"></a>
 
@@ -567,7 +605,7 @@ def cbb_test(fetch_data=True)
 
 Defines a data source, which can be used to fetch data for a sport.
 
-A data source can be used by calling the [`fetch`](#ratingsystems.core.cli.cli.fetch) function. This will return a list of [`Game`](#ratingsystems.core.model.game.Game).
+A data source can be used by calling the [`DataSource.fetch`](#ratingsystems.core.data_source.DataSource.fetch) function. This will return a list of [`Game`](#ratingsystems.core.model.game.Game).
 
 This is also exposed via the CLI command `fetch`, which can be called like this:
 ```bash
@@ -584,7 +622,7 @@ class DataSource(ABC)
 
 Abstract class used to create a data source.
 
-Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) must implement a [`fetch`](#ratingsystems.core.cli.cli.fetch) method which returns a list of [`Game`](#ratingsystems.core.model.game.Game).
+Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) must implement a [`DataSource.fetch`](#ratingsystems.core.data_source.DataSource.fetch) method which returns a list of [`Game`](#ratingsystems.core.model.game.Game). They can also implement a [`DataSource.fetch_bracket`](#ratingsystems.core.data_source.DataSource.fetch_bracket) method which returns a [`Bracket`](#ratingsystems.core.model.bracket.Bracket).
 
 Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSource) can accept any options to __init__, but they must have a default value, and it must accept a year (int) as its first argument.
 
@@ -619,6 +657,20 @@ Method to fetch game data.
 
   list of [`Game`](#ratingsystems.core.model.game.Game) objects
 
+<a id="ratingsystems.core.data_source.DataSource.fetch_bracket"></a>
+
+### fetch\_bracket
+
+```python
+def fetch_bracket() -> Bracket
+```
+
+Method to fetch bracket data.
+
+**Returns**:
+
+  [`Bracket`](#ratingsystems.core.model.bracket.Bracket) object
+
 <a id="ratingsystems.core.data_source.DataSource.save"></a>
 
 ### save
@@ -647,6 +699,34 @@ Load game data from local disk.
 
   list of [`Game`](#ratingsystems.core.model.game.Game)
 
+<a id="ratingsystems.core.data_source.DataSource.save_bracket"></a>
+
+### save\_bracket
+
+```python
+def save_bracket(bracket: Bracket)
+```
+
+Save bracket to local disk.
+
+**Arguments**:
+
+- `bracket` _#Bracket_ - bracket
+
+<a id="ratingsystems.core.data_source.DataSource.load_bracket"></a>
+
+### load\_bracket
+
+```python
+def load_bracket() -> Bracket
+```
+
+Load bracket from local disk.
+
+**Returns**:
+
+  [`Bracket`](#ratingsystems.core.model.bracket.Bracket) object
+
 <a id="ratingsystems.core.data_source.DataSource.data_dir"></a>
 
 ### data\_dir
@@ -663,6 +743,15 @@ def data_dir() -> str
 ```python
 @property
 def data_path() -> str
+```
+
+<a id="ratingsystems.core.data_source.DataSource.bracket_path"></a>
+
+### bracket\_path
+
+```python
+@property
+def bracket_path() -> str
 ```
 
 <a id="ratingsystems.core.data_source.DataSource.auth_token"></a>
@@ -696,29 +785,43 @@ def auth_token(value: str)
 class Bracket()
 ```
 
+Class representing a bracket. This class also provides the [`Bracket.evaluate`](#ratingsystems.core.model.bracket.Bracket.evaluate) method to evaluate the odds of the bracket using a [`Predictor`](#ratingsystems.core.predictor.Predictor).
+
 <a id="ratingsystems.core.model.bracket.Bracket.subbracket_1"></a>
 
 ### subbracket\_1
+
+(str or [`Bracket`](#ratingsystems.core.model.bracket.Bracket)) One side of the bracket up to this point; a string value should be a team name
 
 <a id="ratingsystems.core.model.bracket.Bracket.subbracket_2"></a>
 
 ### subbracket\_2
 
+(str or [`Bracket`](#ratingsystems.core.model.bracket.Bracket)) The other side of the bracket up to this point; a string value should be a team name
+
 <a id="ratingsystems.core.model.bracket.Bracket.seed_1"></a>
 
 ### seed\_1
+
+(int) Seed of one side of the bracket; likely only exists when subbracket_1 is a team name (default: None)
 
 <a id="ratingsystems.core.model.bracket.Bracket.seed_2"></a>
 
 ### seed\_2
 
+(int) Seed of the other side of the bracket; likely only exists when subbracket_2 is a team name (default: None)
+
 <a id="ratingsystems.core.model.bracket.Bracket.bracket_name"></a>
 
 ### bracket\_name
 
+(str) Display name of the bracket (default: '')
+
 <a id="ratingsystems.core.model.bracket.Bracket.odds"></a>
 
 ### odds
+
+(dict[str, float]) Mapping of teams in the bracket to the odds they make it to this point in the bracket
 
 <a id="ratingsystems.core.model.bracket.Bracket.depth"></a>
 
@@ -729,14 +832,32 @@ class Bracket()
 def depth() -> int
 ```
 
+Property giving the depth of this point in the bracket.
+
 <a id="ratingsystems.core.model.bracket.Bracket.teams"></a>
 
 ### teams
 
 ```python
 @property
-def teams() -> List[str]
+def teams() -> list[str]
 ```
+
+Property giving a list of teams in the bracket.
+
+<a id="ratingsystems.core.model.bracket.Bracket.evaluate"></a>
+
+### evaluate
+
+```python
+def evaluate(predictor: Predictor, results: dict[str, int] = {})
+```
+
+Evaluates the bracket to determine the odds for each team to reach each round, using a [`Predictor`](#ratingsystems.core.predictor.Predictor). These odds are then stored in this bracket.
+
+**Arguments**:
+
+- `predictor` _#Predictor_ - used to predict each possible matchup in the bracket
 
 <a id="ratingsystems.core.model.bracket.Bracket.predicted_team"></a>
 
@@ -747,14 +868,7 @@ def teams() -> List[str]
 def predicted_team() -> str
 ```
 
-<a id="ratingsystems.core.model.bracket.Bracket.evaluate"></a>
-
-### evaluate
-
-```python
-def evaluate(predictor: Callable[[str, str], str],
-             results: dict[str, int] = {})
-```
+Property giving the team with the best odds to reach this point in the bracket. Will always return None until [`Bracket.evaluate`](#ratingsystems.core.model.bracket.Bracket.evaluate) is run.
 
 <a id="ratingsystems.core.model.bracket.Bracket.full_odds"></a>
 
@@ -762,8 +876,46 @@ def evaluate(predictor: Callable[[str, str], str],
 
 ```python
 @property
-def full_odds() -> Dict[str, Tuple[str, str, int, List[float]]]
+def full_odds() -> dict[str, tuple[str, int, list[float]]]
 ```
+
+Property giving the full odds to this point in the bracket. Will always return None until [`Bracket.evaluate`](#ratingsystems.core.model.bracket.Bracket.evaluate) is run.
+
+This is formatted as a mapping from team names to a tuple containing in order the bracket name the team appears in, the team's seed, a list of odds for the team to reach each round.
+
+<a id="ratingsystems.core.model.bracket.Bracket.to_file"></a>
+
+### to\_file
+
+```python
+def to_file(path: str)
+```
+
+Saves this [`Bracket`](#ratingsystems.core.model.bracket.Bracket) object from to file.
+
+**Arguments**:
+
+- `path` _str_ - path to the file to save the bracket to
+
+<a id="ratingsystems.core.model.bracket.Bracket.from_file"></a>
+
+### from\_file
+
+```python
+@classmethod
+def from_file(cls, path: str) -> Self
+```
+
+Loads a [`Bracket`](#ratingsystems.core.model.bracket.Bracket) from a file.
+
+**Arguments**:
+
+- `path` _str_ - path to a file containing the bracket
+  
+
+**Returns**:
+
+  [`Bracket`](#ratingsystems.core.model.bracket.Bracket) object representing the bracket stored in the file
 
 <a id="ratingsystems.core.model.game"></a>
 
@@ -1054,7 +1206,7 @@ You can cast the ratings of a [`Rating`](#ratingsystems.core.model.rating.Rating
 ### get
 
 ```python
-def get(team: str) -> Stat
+def get(team: str) -> Optional[Stat]
 ```
 
 Get a rating for a team.
@@ -1066,14 +1218,14 @@ Get a rating for a team.
 
 **Returns**:
 
-  [`Stat`](#ratingsystems.core.model.stat.Stat) representing the rating of the team
+  [`Stat`](#ratingsystems.core.model.stat.Stat) representing the rating of the team, if team exists
 
 <a id="ratingsystems.core.model.rating.Rating.get_value"></a>
 
 ### get\_value
 
 ```python
-def get_value(team: str) -> Number
+def get_value(team: str) -> Optional[Number]
 ```
 
 Get a rating value for a team.
@@ -1085,14 +1237,14 @@ Get a rating value for a team.
 
 **Returns**:
 
-  float representation of the rating of the team
+  float representation of the rating of the team, if team exists
 
 <a id="ratingsystems.core.model.rating.Rating.get_zscore"></a>
 
 ### get\_zscore
 
 ```python
-def get_zscore(team: str) -> Number
+def get_zscore(team: str) -> Optional[Number]
 ```
 
 Get the Z-score of a rating for a team.
@@ -1104,14 +1256,14 @@ Get the Z-score of a rating for a team.
 
 **Returns**:
 
-  Number representation of the Z-score of the rating of the team
+  Number representation of the Z-score of the rating of the team, if team exists
 
 <a id="ratingsystems.core.model.rating.Rating.get_team"></a>
 
 ### get\_team
 
 ```python
-def get_team(team: str) -> TeamRating
+def get_team(team: str) -> Optional[TeamRating]
 ```
 
 Get a team and all of their ratings.
@@ -1123,7 +1275,7 @@ Get a team and all of their ratings.
 
 **Returns**:
 
-  [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) representation of the team and all their ratings
+  [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) representation of the team and all their ratings, if team exists
 
 <a id="ratingsystems.core.model.rating.Rating.confidence_interval"></a>
 
@@ -1215,15 +1367,15 @@ class Stat()
 
 Class representing a rating stat. This provides a way to format a rating.
 
-Classes can inherit from [`Stat`](#ratingsystems.core.model.stat.Stat) and override the `formatted` method to format for different ratings.
+Classes can inherit from [`Stat`](#ratingsystems.core.model.stat.Stat) and override the [`Stat.formatted`](#ratingsystems.core.model.stat.Stat.formatted) method to format for different ratings.
 
 **Arguments**:
 
-  - `value`_float_ - value of the stat
+  - `value` _float_ - value of the stat
   
   [`Stat`](#ratingsystems.core.model.stat.Stat) objects can still be used with any arithmetic operator the same way as a number.
   
-  [`Stat`](#ratingsystems.core.model.stat.Stat) objects can be formatted by calling the `formatted` method or casting it to a string.
+  [`Stat`](#ratingsystems.core.model.stat.Stat) objects can be formatted by calling the [`Stat.formatted`](#ratingsystems.core.model.stat.Stat.formatted) method or casting it to a string.
 
 <a id="ratingsystems.core.model.stat.Stat.formatted"></a>
 
@@ -1291,7 +1443,7 @@ Iterator for the ratings, which gives a [`Rating`](#ratingsystems.core.model.rat
 
 Defines a predictor, which can be used to predict a matchup between two teams.
 
-A predictor can be used by calling the [`predict`](#ratingsystems.core.cli.__main__.predict) function with a team and an opponent. This will return a [`Prediction`](#ratingsystems.core.model.prediction.Prediction) of the matchup.
+A predictor can be used by calling the [`Predictor.predict`](#ratingsystems.core.predictor.Predictor.predict) function with a team and an opponent. This will return a [`Prediction`](#ratingsystems.core.model.prediction.Prediction) of the matchup.
 
 This is also exposed via the CLI command `predict`, which can be called like this:
 ```bash
@@ -1308,7 +1460,7 @@ class Predictor(ABC)
 
 Abstract class used to create a predictor.
 
-Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) must implement a [`predict`](#ratingsystems.core.cli.__main__.predict) method which takes as input a team and an opponent and returns a [`Prediction`](#ratingsystems.core.model.prediction.Prediction) object.
+Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) must implement a [`Predictor.predict`](#ratingsystems.core.predictor.Predictor.predict) method which takes as input a team and an opponent and returns a [`Prediction`](#ratingsystems.core.model.prediction.Prediction) object.
 
 Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor) can accept any options to __init__, but they must have a default value, and it must accept a [`Rating`](#ratingsystems.core.model.rating.Rating) as its first argument.
 
@@ -1383,7 +1535,7 @@ def predict(team: str, opponent: str) -> Prediction
 
 Defines a rating system, which can be used to create a rating of teams.
 
-A rating system can be used by calling the [`rate`](#ratingsystems.core.cli.cli.rate) function with a list of [`Game`](#ratingsystems.core.model.game.Game). This will return a [`Rating`](#ratingsystems.core.model.rating.Rating) of the teams.
+A rating system can be used by calling the [`RatingSystem.rate`](#ratingsystems.core.rating_system.RatingSystem.rate) function with a list of [`Game`](#ratingsystems.core.model.game.Game). This will return a [`Rating`](#ratingsystems.core.model.rating.Rating) of the teams.
 
 This is also exposed via the CLI command `rate`, which can be called like this:
 ```bash
@@ -1400,7 +1552,7 @@ class RatingSystem(ABC)
 
 Abstract class used to create a rating system.
 
-Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) must implement a [`rate`](#ratingsystems.core.cli.cli.rate) method which takes as input a list of [`Game`](#ratingsystems.core.model.game.Game) objects and returns a [`Rating`](#ratingsystems.core.model.rating.Rating) object.
+Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) must implement a [`RatingSystem.rate`](#ratingsystems.core.rating_system.RatingSystem.rate) method which takes as input a list of [`Game`](#ratingsystems.core.model.game.Game) objects and returns a [`Rating`](#ratingsystems.core.model.rating.Rating) object.
 
 Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.RatingSystem) can accept any options to __init__, but they must have a default value.
 

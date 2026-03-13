@@ -95,7 +95,7 @@ class Rating():
             if isinstance(data, Rating):
                 self._sub_ratings[name] = data
 
-    def get(self, team: str) -> Stat:
+    def get(self, team: str) -> Optional[Stat]:
         """
         Get a rating for a team.
 
@@ -103,13 +103,13 @@ class Rating():
             team (str): team name to get the rating for
 
         Returns:
-            #Stat representing the rating of the team
+            #Stat representing the rating of the team, if team exists
         """
         if self._stat_class:
             return self._stat_class(self._rating.get(team).value)
         return self._rating.get(team)
 
-    def get_value(self, team: str) -> Number:
+    def get_value(self, team: str) -> Optional[Number]:
         """
         Get a rating value for a team.
 
@@ -117,11 +117,13 @@ class Rating():
             team (str): team name to get the rating for
 
         Returns:
-            float representation of the rating of the team
+            float representation of the rating of the team, if team exists
         """
+        if self.get(team) is None:
+            return None
         return self.get(team).value
 
-    def get_zscore(self, team: str) -> Number:
+    def get_zscore(self, team: str) -> Optional[Number]:
         """
         Get the Z-score of a rating for a team.
 
@@ -129,11 +131,13 @@ class Rating():
             team (str): team name to get the Z-score for
 
         Returns:
-            Number representation of the Z-score of the rating of the team
+            Number representation of the Z-score of the rating of the team, if team exists
         """
+        if self.get_value(team) is None:
+            return None
         return (self.get_value(team) - self.mean) / self.stdev
 
-    def get_team(self, team: str) -> TeamRating:
+    def get_team(self, team: str) -> Optional[TeamRating]:
         """
         Get a team and all of their ratings.
 
@@ -141,8 +145,10 @@ class Rating():
             team (str): team name to get
 
         Returns:
-            #TeamRating representation of the team and all their ratings
+            #TeamRating representation of the team and all their ratings, if team exists
         """
+        if self.get(team) is None:
+            return None
         return TeamRating(
             name=team,
             rating=self.get(team),
@@ -345,37 +351,49 @@ class _Combination(ABC):
 
 class _Add(_Combination):
 
-    def get(self, team: str) -> Stat:
+    def get(self, team: str) -> Optional[Stat]:
+        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+            return None
         return self.first_rating.get(team) + self.second_rating.get(team)
 
 
 class _Subtract(_Combination):
 
-    def get(self, team: str) -> Stat:
+    def get(self, team: str) -> Optional[Stat]:
+        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+            return None
         return self.first_rating.get(team) - self.second_rating.get(team)
 
 
 class _Multiply(_Combination):
 
-    def get(self, team: str) -> Stat:
+    def get(self, team: str) -> Optional[Stat]:
+        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+            return None
         return self.first_rating.get(team) * self.second_rating.get(team)
 
 
 class _Divide(_Combination):
 
     def get(self, team: str) -> Stat:
+        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+            return None
         return self.first_rating.get(team) / self.second_rating.get(team)
 
 
 class _Pow(_Combination):
 
-    def get(self, team: str) -> Stat:
+    def get(self, team: str) -> Optional[Stat]:
+        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+            return None
         return self.first_rating.get(team) ** self.second_rating.get(team)
 
 
 class _AbsoluteValue(_Combination):
 
-    def get(self, team: str) -> Stat:
+    def get(self, team: str) -> Optional[Stat]:
+        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+            return None
         return abs(self.first_rating.get(team))
 
 

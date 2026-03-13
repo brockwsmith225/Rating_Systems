@@ -1,7 +1,7 @@
 """
 Defines a data source, which can be used to fetch data for a sport.
 
-A data source can be used by calling the #fetch function. This will return a list of #Game.
+A data source can be used by calling the #DataSource.fetch function. This will return a list of #Game.
 
 This is also exposed via the CLI command `fetch`, which can be called like this:
 ```bash
@@ -13,7 +13,7 @@ import os
 from abc import ABC, abstractmethod
 from dataclasses import asdict
 
-from ratingsystems.core.model import Game, GameStats
+from ratingsystems.core.model import Bracket, Game, GameStats
 from ratingsystems.core.util import config_path
 
 
@@ -21,7 +21,7 @@ class DataSource(ABC):
     """
     Abstract class used to create a data source.
 
-    Classes that inherit from #DataSource must implement a #fetch method which returns a list of #Game.
+    Classes that inherit from #DataSource must implement a #DataSource.fetch method which returns a list of #Game. They can also implement a #DataSource.fetch_bracket method which returns a #Bracket.
     
     Classes that inherit from #DataSource can accept any options to __init__, but they must have a default value, and it must accept a year (int) as its first argument.
 
@@ -48,6 +48,15 @@ class DataSource(ABC):
             list of #Game objects
         """
         raise NotImplementedError()
+
+    def fetch_bracket(self) -> Bracket:
+        """
+        Method to fetch bracket data.
+
+        Returns:
+            #Bracket object
+        """
+        raise NotImplementedError(f"Data source {self.name} does not support fetching a bracket")
 
     def save(self, games: list[Game]):
         """
@@ -78,6 +87,27 @@ class DataSource(ABC):
             return [game for game in games if game.complete]
         return games
 
+    def save_bracket(self, bracket: Bracket):
+        """
+        Save bracket to local disk.
+
+        Args:
+            bracket (#Bracket): bracket
+        """
+        bracket.to_file(self.bracket_path)
+
+    def load_bracket(self) -> Bracket:
+        """
+        Load bracket from local disk.
+
+        Returns:
+            #Bracket object
+        """
+        if not os.path.exists(self.bracket_path):
+            raise FileNotFoundError(f"No bracket found on local device for {self.name} {self.year}")
+
+        return Bracket.from_file(self.bracket_path)
+
     @property
     def data_dir(self) -> str:
         import ratingsystems
@@ -89,6 +119,10 @@ class DataSource(ABC):
     @property
     def data_path(self) -> str:
         return os.path.join(self.data_dir, f"{self.name}-{self.year}.json")
+
+    @property
+    def bracket_path(self) -> str:
+        return os.path.join(self.data_dir, f"{self.name}-{self.year}.bracket")
 
     @property
     def auth_token(self) -> str:

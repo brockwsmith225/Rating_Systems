@@ -6,14 +6,14 @@ class Stat():
     """
     Class representing a rating stat. This provides a way to format a rating. 
 
-    Classes can inherit from #Stat and override the #formatted method to format for different ratings.
+    Classes can inherit from #Stat and override the #Stat.formatted method to format for different ratings.
 
     Parameters:
-    - `value`_float_ - value of the stat
+    - `value` _float_ - value of the stat
 
     #Stat objects can still be used with any arithmetic operator the same way as a number.
 
-    #Stat objects can be formatted by calling the #formatted method or casting it to a string.
+    #Stat objects can be formatted by calling the #Stat.formatted method or casting it to a string.
     """
 
     def __init__(self, value: float):

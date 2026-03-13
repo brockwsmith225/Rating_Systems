@@ -12,7 +12,6 @@ import json
 import os
 from abc import ABC, abstractmethod
 from dataclasses import asdict
-from typing import Type
 
 from ratingsystems.core.model import Game, GameStats
 from ratingsystems.core.util import config_path
@@ -32,7 +31,10 @@ class DataSource(ABC):
     """
 
     name: str = ""
-    stats_class: Type = GameStats
+    "(str) Name of the data source; will be used by the CLI, so ideally this is short"
+
+    stats_class: type[GameStats] = GameStats
+    "(type[#GameStats]) Class to use for the game stats; useful if you want to include additional stats for a data source (default: #GameStats)"
 
     def __init__(self, year: int):
         self.year = year

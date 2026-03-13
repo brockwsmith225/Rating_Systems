@@ -10,12 +10,66 @@ from typing import Any, Optional, Self, Union, Tuple, Type
 
 from ratingsystems.core.model.prediction import Prediction
 from ratingsystems.core.model.team_rating import TeamRating
+from ratingsystems.core.model.game import Game
 from ratingsystems.core.model.stat import Stat
 
 
 class Rating():
+    """
+    Class representing a rating of teams. This class also provides many helpful functions for interacting with the ratings.
 
-    def __init__(self, rating: Union[dict[str, Stat], Any], name: str = None, games: list = [], stat_class: Type[Stat] = None, **auxilliary_data):
+    Parameters:
+        rating (dict[str, #Stat]): mapping of team names to ratings, represented by a #Stat object
+        games (list[Game]): list of games used to generate this rating
+        name (str): name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)
+        stat_class (Type[Stat]): Stat type that, if specified, is used to convert ratings (default: None)
+        **auxillary_data: additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
+
+    All of the arithmetic operators work on #Rating objects just like regular numbers. The result of these arithmetic operators will be a new #Rating object that contains the original ratings transformed by the arithmetic operation.
+        ex.
+            ```python
+            (rating + 1).get_value(team) == rating.get_value(team) + 1
+            (2 * rating).get_value(team) == 2 * rating.get_value(team)
+            (rating1 - rating2).get_value(team) == rating1.get_value(team) - rating2.get_value(team)
+            ```
+
+    This can be used to create new ratings that are combinations of existing ratings. For example, it may be useful in a rating system to create simple ratings, then combine and transform these into more complex ratings, without having to do so across all teams. It may also be useful to modify and/or combine ratings from different rating systems.
+
+    #Rating objects with a name will be accessible in the resulting #Rating object via a property based on the name of the #Rating object.
+        ex.
+            ```python
+            named_rating = Rating(data, games, name="abc")
+            (rating + 1).abc == named_rating
+            ```
+
+    These operators also work on #Rating objects, to achieve a few other useful features:
+
+        Add/Change Name (%):
+            You can add or change the name of a #Rating object using the modulo operator (%)
+                ex.
+                    ```python
+                    rating = (rating1 + rating2) % "new_name"
+                    ```
+            This can be especially useful when combined with the arithmetic operators to give names to the new ratings you're creating.
+
+        Add Sub Rating (<<):
+            You can add a #Rating object as a sub rating of another #Rating object using the left shift operator (<<)
+                ex.
+                    ```python
+                    rating = (rating1 + rating2) << sub_rating
+                    ```
+            This can be useful to add additional ratings that weren't used in calculating your rating. (Note: the sub rating must have a name, otherwise this operation will fail) 
+
+        Cast ratings to #Stat class (|):
+            You can cast the ratings of a #Rating object to a different #Stat class using the or operator (|)
+                ex.
+                    ```python
+                    rating = (rating1 + rating2) | #Stat
+                    ```
+            This can be useful when you are combining two ratings with one #Stat type, but wish for the resulting rating to be a different #Stat type.
+    """
+
+    def __init__(self, rating: Union[dict[str, Stat], Any], games: list[Game], name: str = None, stat_class: Type[Stat] = None, **auxilliary_data):
         if isinstance(rating, dict):
             for team, value in rating.items():
                 if not issubclass(type(value), Stat):
@@ -81,6 +135,8 @@ class Rating():
     def confidence_interval(self) -> float:
         if self._confidence_interval is not None:
             return self._confidence_interval
+        if not self.games:
+            return None
         self._confidence_interval = stdev([(self.get_value(game.home_team) - self.get_value(game.away_team)) - (game.home_points - game.away_points) for game in self.games])
         return self._confidence_interval
 
@@ -179,6 +235,9 @@ class Rating():
         return Rating(_AbsoluteValue(self), games=self.games)
 
     def __mod__(self, other: Any) -> Self:
+        """
+        Create a Rating with a new name.
+        """
         if isinstance(other, str):
             sub_ratings = self._sub_ratings
             if other in sub_ratings:
@@ -189,12 +248,21 @@ class Rating():
             raise TypeError(f"Unsupported operand type(s) for %: 'Rating' and '{type(other)}'")
 
     def __lshift__(self, other: Any) -> Self:
+        """
+        Create a Rating with an additional Rating added to its sub ratings.
+        """
         if isinstance(other, Rating):
-            return Rating(self._rating, name=self.name, games=self.games, stat_class=self._stat_class, **self._sub_ratings, **{other.name: other})
+            if other.name is not None:
+                return Rating(self._rating, name=self.name, games=self.games, stat_class=self._stat_class, **self._sub_ratings, **{other.name: other})
+            else:
+                raise TypeError("Cannot add sub rating without a name")
         else:
             raise TypeError(f"Unsupported operand type(s) for <<: 'Rating' and '{type(other)}'")
 
     def __or__(self, other: Any) -> Self:
+        """
+        Create a Rating where its ratings are cast to a Stat class.
+        """
         if issubclass(other, Stat):
             return Rating(self._rating, name=self.name, games=self.games, stat_class=other, **self._sub_ratings)
         else:

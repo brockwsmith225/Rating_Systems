@@ -171,6 +171,7 @@ def fetch(
 @ratingsystem
 @options
 @click.option("--pretty/--no-pretty", type=bool, is_flag=True, default=False, help="Pretty print rating")
+@click.option("--ranks/--no-ranks", type=bool, is_flag=True, default=False, help="Print ranks for each rating")
 @click.option("--hidden/--no-hidden", type=bool, is_flag=True, default=False, help="Include hidden ratings in output")
 @click.pass_context
 def rate(
@@ -179,6 +180,7 @@ def rate(
     datasource: Optional[DataSource] = None,
     ratingsystem: Optional[RatingSystem] = None,
     pretty: bool = False,
+    ranks: bool = False,
     hidden: bool = False,
     options: dict[str, Any] = {},
 ):
@@ -212,6 +214,8 @@ def rate(
 
     # Store rating for shell mode
     context.obj["ratings"][rs.name] = rating
+
+    # TODO: add rankings
 
     if pretty:
         click.echo(f"{rjustify('RANK', 4)} | {ljustify('TEAM', 30)} | {center('RECORD', 7)} | {' | '.join([center(r.name.upper(), 10) for r in rating.ratings(hidden=hidden)])}")

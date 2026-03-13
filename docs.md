@@ -705,7 +705,7 @@ Evaluates the bracket to determine the odds for each team to reach each round, u
 
 ```python
 @property
-def predicted_team() -> str
+def predicted_team() -> Optional[str]
 ```
 
 Property giving the team with the best odds to reach this point in the bracket. Will always return None until [`Bracket.evaluate`](#ratingsystems.core.model.bracket.Bracket.evaluate) is run.
@@ -716,7 +716,7 @@ Property giving the team with the best odds to reach this point in the bracket. 
 
 ```python
 @property
-def full_odds() -> dict[str, tuple[str, int, list[float]]]
+def full_odds() -> Optional[dict[str, tuple[str, int, list[float]]]]
 ```
 
 Property giving the full odds to this point in the bracket. Will always return None until [`Bracket.evaluate`](#ratingsystems.core.model.bracket.Bracket.evaluate) is run.

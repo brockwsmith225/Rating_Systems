@@ -99,7 +99,7 @@ class Bracket:
                     self.odds[team_2] += (1.0 - game_odds) * self.subbracket_1.odds[team_1] * self.subbracket_2.odds[team_2]
 
     @property
-    def predicted_team(self) -> str:
+    def predicted_team(self) -> Optional[str]:
         """
         Property giving the team with the best odds to reach this point in the bracket. Will always return None until #Bracket.evaluate is run.
         """
@@ -110,12 +110,14 @@ class Bracket:
         return k[v.index(max(v))]
 
     @property
-    def full_odds(self) -> dict[str, tuple[str, int, list[float]]]:
+    def full_odds(self) -> Optional[dict[str, tuple[str, int, list[float]]]]:
         """
         Property giving the full odds to this point in the bracket. Will always return None until #Bracket.evaluate is run.
 
         This is formatted as a mapping from team names to a tuple containing in order the bracket name the team appears in, the team's seed, a list of odds for the team to reach each round.
         """
+        if not self.odds:
+            return
         if self.subbracket_2 is None:
             return {self.subbracket_1: (self.bracket_name, self.seed_1, [self.odds.get(self.subbracket_1)])}
         elif isinstance(self.subbracket_1, str):

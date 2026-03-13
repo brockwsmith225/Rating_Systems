@@ -24,6 +24,7 @@ renderer = MarkdownRenderer(
     filename="docs.md",
     render_toc=True,
     descriptive_class_title=False,
+    descriptive_module_title=True,
 )
 
 loader.init(context)

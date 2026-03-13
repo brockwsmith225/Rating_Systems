@@ -150,11 +150,11 @@
 
 <a id="ratingsystems"></a>
 
-# ratingsystems
+# Module ratingsystems
 
 <a id="ratingsystems.core.cli.cli"></a>
 
-# ratingsystems.core.cli.cli
+# Module ratingsystems.core.cli.cli
 
 <a id="ratingsystems.core.cli.cli.year"></a>
 
@@ -320,7 +320,7 @@ Used to predict a matchup between TEAM and OPPONENT.
 
 <a id="ratingsystems.core.cli.helpers"></a>
 
-# ratingsystems.core.cli.helpers
+# Module ratingsystems.core.cli.helpers
 
 <a id="ratingsystems.core.cli.helpers.combine_key_value_pairs"></a>
 
@@ -408,11 +408,11 @@ def get_metavar(param: click.Parameter,
 
 <a id="ratingsystems.core.cli"></a>
 
-# ratingsystems.core.cli
+# Module ratingsystems.core.cli
 
 <a id="ratingsystems.core.cli.__main__"></a>
 
-# ratingsystems.core.cli.\_\_main\_\_
+# Module ratingsystems.core.cli.\_\_main\_\_
 
 <a id="ratingsystems.core.cli.__main__.WIN_WEIGHT"></a>
 
@@ -552,7 +552,7 @@ def cbb_test(fetch_data=True)
 
 <a id="ratingsystems.core.data_source"></a>
 
-# ratingsystems.core.data\_source
+# Module ratingsystems.core.data\_source
 
 Defines a data source, which can be used to fetch data for a sport.
 
@@ -667,7 +667,7 @@ def auth_token(value: str)
 
 <a id="ratingsystems.core.model.bracket"></a>
 
-# ratingsystems.core.model.bracket
+# Module ratingsystems.core.model.bracket
 
 <a id="ratingsystems.core.model.bracket.Bracket"></a>
 
@@ -749,7 +749,7 @@ def full_odds() -> Dict[str, Tuple[str, str, int, List[float]]]
 
 <a id="ratingsystems.core.model.game"></a>
 
-# ratingsystems.core.model.game
+# Module ratingsystems.core.model.game
 
 <a id="ratingsystems.core.model.game.GameStats"></a>
 
@@ -909,7 +909,7 @@ Class that represents a game.
 
 <a id="ratingsystems.core.model.prediction"></a>
 
-# ratingsystems.core.model.prediction
+# Module ratingsystems.core.model.prediction
 
 <a id="ratingsystems.core.model.prediction.Prediction"></a>
 
@@ -921,7 +921,7 @@ class Prediction()
 
 <a id="ratingsystems.core.model.rating"></a>
 
-# ratingsystems.core.model.rating
+# Module ratingsystems.core.model.rating
 
 <a id="ratingsystems.core.model.rating.Rating"></a>
 
@@ -1025,7 +1025,7 @@ def rank(rating: Self, reverse: bool = False) -> list[Tuple[str, Stat]]
 
 <a id="ratingsystems.core.model.stat"></a>
 
-# ratingsystems.core.model.stat
+# Module ratingsystems.core.model.stat
 
 <a id="ratingsystems.core.model.stat.Stat"></a>
 
@@ -1045,7 +1045,7 @@ def formatted(precision: int = 1) -> str
 
 <a id="ratingsystems.core.model.team_rating"></a>
 
-# ratingsystems.core.model.team\_rating
+# Module ratingsystems.core.model.team\_rating
 
 <a id="ratingsystems.core.model.team_rating.TeamRating"></a>
 
@@ -1074,11 +1074,11 @@ def combine(*ratings, rating: Optional[Stat] = None, **sub_ratings)
 
 <a id="ratingsystems.core.model"></a>
 
-# ratingsystems.core.model
+# Module ratingsystems.core.model
 
 <a id="ratingsystems.core.predictor"></a>
 
-# ratingsystems.core.predictor
+# Module ratingsystems.core.predictor
 
 Defines a predictor, which can be used to predict a matchup between two teams.
 
@@ -1165,7 +1165,7 @@ def predict(team: str, opponent: str) -> Prediction
 
 <a id="ratingsystems.core.rating_system"></a>
 
-# ratingsystems.core.rating\_system
+# Module ratingsystems.core.rating\_system
 
 Defines a rating system, which can be used to create a rating of teams.
 
@@ -1215,7 +1215,7 @@ Returns:
 
 <a id="ratingsystems.core.util.file"></a>
 
-# ratingsystems.core.util.file
+# Module ratingsystems.core.util.file
 
 <a id="ratingsystems.core.util.file.config_path"></a>
 
@@ -1223,7 +1223,7 @@ Returns:
 
 <a id="ratingsystems.core.util.math"></a>
 
-# ratingsystems.core.util.math
+# Module ratingsystems.core.util.math
 
 <a id="ratingsystems.core.util.math.linear_regression"></a>
 
@@ -1258,7 +1258,7 @@ def linear_regression_to_points(rating: Rating, games: list) -> Rating
 
 <a id="ratingsystems.core.util.text"></a>
 
-# ratingsystems.core.util.text
+# Module ratingsystems.core.util.text
 
 <a id="ratingsystems.core.util.text.center"></a>
 
@@ -1286,9 +1286,9 @@ def rjustify(text: Any, columns: int) -> str
 
 <a id="ratingsystems.core.util"></a>
 
-# ratingsystems.core.util
+# Module ratingsystems.core.util
 
 <a id="ratingsystems.core"></a>
 
-# ratingsystems.core
+# Module ratingsystems.core
 

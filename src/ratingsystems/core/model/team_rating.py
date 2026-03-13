@@ -10,7 +10,7 @@ class TeamRating():
 
     Parameters:
     - `name` _str_ - name of the team
-    - `rating` _Stat_ - 
+    - `rating` _Stat_ - rating of the team, represented by a #Stat object
     - `wins` _int_ - number of games the team has won
     - `losses` _int_ - number of games the team has lost
     - `ties` _int_ - number of games the team has tied

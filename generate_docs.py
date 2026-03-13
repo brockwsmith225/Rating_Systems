@@ -25,6 +25,9 @@ renderer = MarkdownRenderer(
     render_toc=True,
     descriptive_class_title=False,
     descriptive_module_title=True,
+    render_typehint_in_data_header=True,
+    use_fixed_header_levels=False,
+    # header_level_by_type=,
 )
 
 loader.init(context)

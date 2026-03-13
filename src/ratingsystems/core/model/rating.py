@@ -19,43 +19,43 @@ class Rating():
     Class representing a rating of teams. This class also provides many helpful functions for interacting with the ratings.
 
     Parameters:
-        rating (dict[str, #Stat]): mapping of team names to ratings, represented by a #Stat object
-        games (list[Game]): list of games used to generate this rating
-        name (str): name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)
-        stat_class (Type[Stat]): Stat type that, if specified, is used to convert ratings (default: None)
-        **auxillary_data: additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
+        rating (dict[str, #Stat]): mapping of team names to ratings, represented by a #Stat object<br>
+        games (list[Game]): list of games used to generate this rating<br>
+        name (str): name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)<br>
+        stat_class (Type[Stat]): Stat type that, if specified, is used to convert ratings (default: None)<br>
+        **auxillary_data: additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating<br>
 
-    All of the arithmetic operators work on #Rating objects just like regular numbers. The result of these arithmetic operators will be a new #Rating object that contains the original ratings transformed by the arithmetic operation.
-        ex.
-            (rating + 1).get_value(team) == rating.get_value(team) + 1
-            (2 * rating).get_value(team) == 2 * rating.get_value(team)
+    All of the arithmetic operators work on #Rating objects just like regular numbers. The result of these arithmetic operators will be a new #Rating object that contains the original ratings transformed by the arithmetic operation.<br>
+        ex.<br>
+            (rating + 1).get_value(team) == rating.get_value(team) + 1<br>
+            (2 * rating).get_value(team) == 2 * rating.get_value(team)<br>
             (rating1 - rating2).get_value(team) == rating1.get_value(team) - rating2.get_value(team)
 
     This can be used to create new ratings that are combinations of existing ratings. For example, it may be useful in a rating system to create simple ratings, then combine and transform these into more complex ratings, without having to do so across all teams. It may also be useful to modify and/or combine ratings from different rating systems.
 
-    #Rating objects with a name will be accessible in the resulting #Rating object via a property based on the name of the #Rating object.
-        ex.
-            named_rating = Rating(data, games, name="abc")
+    #Rating objects with a name will be accessible in the resulting #Rating object via a property based on the name of the #Rating object.<br>
+        ex.<br>
+            named_rating = Rating(data, games, name="abc")<br>
             (rating + 1).abc == named_rating
 
     These operators also work on #Rating objects, to achieve a few other useful features:
 
-        Add/Change Name (%):
-            You can add or change the name of a #Rating object using the modulo operator (%)
-                ex.
-                    rating = (rating1 + rating2) % "new_name"
+        Add/Change Name (%):<br>
+            You can add or change the name of a #Rating object using the modulo operator (%)<br>
+                ex.<br>
+                    rating = (rating1 + rating2) % "new_name"<br>
             This can be especially useful when combined with the arithmetic operators to give names to the new ratings you're creating.
 
-        Add Sub Rating (<<):
-            You can add a #Rating object as a sub rating of another #Rating object using the left shift operator (<<)
-                ex.
-                    rating = (rating1 + rating2) << sub_rating
+        Add Sub Rating (<<):<br>
+            You can add a #Rating object as a sub rating of another #Rating object using the left shift operator (<<)<br>
+                ex.<br>
+                    rating = (rating1 + rating2) << sub_rating<br>
             This can be useful to add additional ratings that weren't used in calculating your rating. (Note: the sub rating must have a name, otherwise this operation will fail) 
 
-        Cast ratings to #Stat class (|):
-            You can cast the ratings of a #Rating object to a different #Stat class using the or operator (|)
-                ex.
-                    rating = (rating1 + rating2) | #Stat
+        Cast ratings to #Stat class (|):<br>
+            You can cast the ratings of a #Rating object to a different #Stat class using the or operator (|)<br>
+                ex.<br>
+                    rating = (rating1 + rating2) | #Stat<br>
             This can be useful when you are combining two ratings with one #Stat type, but wish for the resulting rating to be a different #Stat type.
     """
 

@@ -1,8 +1,12 @@
+import os
+import sys
+
 from pydoc_markdown.interfaces import Context, Resolver
 from pydoc_markdown.contrib.loaders.python import PythonLoader
 from pydoc_markdown.contrib.processors.crossref import CrossrefProcessor
 from pydoc_markdown.contrib.processors.filter import FilterProcessor
 from pydoc_markdown.contrib.renderers.markdown import MarkdownRenderer
+
 
 class ReferenceResolver(Resolver):
 
@@ -44,4 +48,16 @@ for module in modules:
 filter.process(modules, resolver)
 processor.process(modules, resolver)
 
+old_file = ""
+if os.path.exists("docs.md"):
+    with open("docs.md", "r") as f:
+        old_file = f.read()
+
 renderer.render(modules)
+
+new_file = ""
+with open("docs.md", "r") as f:
+    new_file = f.read()
+
+if new_file != old_file:
+    sys.exit(1)

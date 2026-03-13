@@ -20,7 +20,7 @@ Used to fetch data for `<year>` using the `<datasource>` data source (Note: you 
 ```
 ratingsystems rate --year <year> --data <datasource> --rating <ratingsystem> --opt <opt>=<value> --opt <opt>=<value>
 ```
-Used to rate teams for `<year>` with data from the `<datasource>` data source using the `<ratingsystem>` rating system (Note: you must have the selected data source and rating system installed). Any options will be passed to the rating system.
+Used to rate teams for `<year>` with data from the `<datasource>` data source using the `<ratingsystem>` rating system (Note: you must have the selected data source and rating system installed). Any options will be passed to the rating system. Multiple rating systems can be set to combine ratings.
 
 
 ### predict

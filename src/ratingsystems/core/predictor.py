@@ -16,7 +16,8 @@ from typing import Optional
 import click
 from click.core import ParameterSource
 
-from ratingsystems.core.model import Prediction, Rating
+from ratingsystems.core.model.prediction import Prediction
+from ratingsystems.core.model.rating import Rating
 
 
 class Predictor(ABC):

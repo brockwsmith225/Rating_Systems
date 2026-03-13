@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Callable, Optional, Self, Union
 
-from ratingsystems.core import Predictor
+from ratingsystems.core.predictor import Predictor
 
 
 @dataclass

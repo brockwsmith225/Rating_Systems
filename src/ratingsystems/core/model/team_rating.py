@@ -14,15 +14,17 @@ class TeamRating():
     - `wins` _int_ - number of games the team has won
     - `losses` _int_ - number of games the team has lost
     - `ties` _int_ - number of games the team has tied
+    - `conference` _str_ - conference the team belongs to (default: "")
     - `**sub_rating` - additional #TeamRating objects to be stored as sub ratings for the #TeamRating; can be accessed via a property based on the name of the #Rating that produced the #TeamRating
     """
 
-    def __init__(self, name: str, rating: Stat, wins: int = 0, losses: int = 0, ties: int = 0, **sub_ratings):
+    def __init__(self, name: str, rating: Stat, wins: int = 0, losses: int = 0, ties: int = 0, conference: str = "", **sub_ratings):
         self.name = name
         self.rating = rating
         self.wins = wins
         self.losses = losses
         self.ties = ties
+        self.conference = conference
         self._sub_ratings = sub_ratings
         for k, v in sub_ratings.items():
             setattr(self, k, v)

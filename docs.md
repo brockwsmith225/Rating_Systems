@@ -99,10 +99,13 @@
     * [get\_value](#ratingsystems.core.model.rating.Rating.get_value)
     * [get\_zscore](#ratingsystems.core.model.rating.Rating.get_zscore)
     * [get\_team](#ratingsystems.core.model.rating.Rating.get_team)
+    * [get\_rank](#ratingsystems.core.model.rating.Rating.get_rank)
     * [confidence\_interval](#ratingsystems.core.model.rating.Rating.confidence_interval)
     * [mean](#ratingsystems.core.model.rating.Rating.mean)
     * [stdev](#ratingsystems.core.model.rating.Rating.stdev)
+    * [ranking](#ratingsystems.core.model.rating.Rating.ranking)
     * [keys](#ratingsystems.core.model.rating.Rating.keys)
+    * [values](#ratingsystems.core.model.rating.Rating.values)
     * [teams](#ratingsystems.core.model.rating.Rating.teams)
     * [ratings](#ratingsystems.core.model.rating.Rating.ratings)
     * [rank](#ratingsystems.core.model.rating.Rating.rank)
@@ -183,9 +186,9 @@
 @click.pass_context
 def cli(context: click.Context,
         year: int = datetime.now().year,
-        datasource: Optional[DataSource] = None,
-        ratingsystem: Optional[RatingSystem] = None,
-        predictor: Optional[Predictor] = None,
+        datasource: Optional[Type[DataSource]] = None,
+        ratingsystem: Tuple[Type[RatingSystem]] = (),
+        predictor: Optional[Type[Predictor]] = None,
         options: dict[str, Any] = {})
 ```
 
@@ -206,7 +209,7 @@ CLI for interacting with rating systems. Use without a subcommand to start a she
 def config(context: click.Context,
            year: int = datetime.now().year,
            datasource: Optional[DataSource] = None,
-           ratingsystem: Optional[RatingSystem] = None,
+           ratingsystem: Tuple[Type[RatingSystem]] = (),
            predictor: Optional[Predictor] = None,
            options: dict[str, Any] = {})
 ```
@@ -239,7 +242,7 @@ def set_defaults(
 @click.pass_context
 def fetch(context: click.Context,
           year: int = datetime.now().year,
-          datasource: Optional[DataSource] = None,
+          datasource: Optional[Type[DataSource]] = None,
           bracket: bool = False)
 ```
 
@@ -261,6 +264,7 @@ Used to fetch data.
               default=False,
               help="Pretty print rating")
 @click.option("--ranks/--no-ranks",
+              "include_ranks",
               type=bool,
               is_flag=True,
               default=False,
@@ -273,10 +277,10 @@ Used to fetch data.
 @click.pass_context
 def rate(context: click.Context,
          year: int = datetime.now().year,
-         datasource: Optional[DataSource] = None,
-         ratingsystem: Optional[RatingSystem] = None,
+         datasource: Optional[Type[DataSource]] = None,
+         ratingsystem: Tuple[Type[RatingSystem]] = (),
          pretty: bool = False,
-         ranks: bool = False,
+         include_ranks: bool = False,
          hidden: bool = False,
          options: dict[str, Any] = {})
 ```
@@ -301,9 +305,9 @@ def predict(context: click.Context,
             team: str,
             opponent: str,
             year: int = datetime.now().year,
-            datasource: Optional[DataSource] = None,
-            ratingsystem: Optional[RatingSystem] = None,
-            predictor: Optional[Predictor] = None,
+            datasource: Optional[Type[DataSource]] = None,
+            ratingsystem: Tuple[Type[RatingSystem]] = (),
+            predictor: Optional[Type[Predictor]] = None,
             options: dict[str, Any] = {})
 ```
 
@@ -337,9 +341,9 @@ Used to predict a matchup between TEAM and OPPONENT.
 @click.pass_context
 def bracket(context: click.Context,
             year: int = datetime.now().year,
-            datasource: Optional[DataSource] = None,
-            ratingsystem: Optional[RatingSystem] = None,
-            predictor: Optional[Predictor] = None,
+            datasource: Optional[Type[DataSource]] = None,
+            ratingsystem: Tuple[Type[RatingSystem]] = (),
+            predictor: Optional[Type[Predictor]] = None,
             options: dict[str, Any] = {},
             display: bool = False,
             pretty: bool = False)
@@ -1012,6 +1016,7 @@ Class representing a rating of teams. This class also provides many helpful func
   - `games` _list[[`Game`](#ratingsystems.core.model.game.Game)]_ - list of games used to generate this rating
   - `name` _str_ - name of the rating; when transforming [`Rating`](#ratingsystems.core.model.rating.Rating) objects through arithmetic operators, [`Rating`](#ratingsystems.core.model.rating.Rating) objects with names will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name; names that begin with an underscore ('_') will be hidden and will not appear unless explicitly requested (default: None)
   - `stat_class` _Type[[`Stat`](#ratingsystems.core.model.stat.Stat)]_ - [`Stat`](#ratingsystems.core.model.stat.Stat) type that, if specified, is used to convert ratings (default: None)
+  - `reverse_sort` _bool_ - whether to reverse the order when sorting the [`Rating`](#ratingsystems.core.model.rating.Rating) (default: False)
   - `**auxillary_data` - additional fields to be stored on the [`Rating`](#ratingsystems.core.model.rating.Rating); this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
   
   [`Rating`](#ratingsystems.core.model.rating.Rating) objects are iterable. Iterating on a [`Rating`](#ratingsystems.core.model.rating.Rating) object will yield a [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) representing each team.
@@ -1040,6 +1045,10 @@ This can be useful to add additional ratings that weren't used in calculating yo
 You can cast the ratings of a [`Rating`](#ratingsystems.core.model.rating.Rating) object to a different [`Stat`](#ratingsystems.core.model.stat.Stat) class using the or operator ('|')<br>
 ```> rating = (rating1 + rating2) | Stat```<br>
   This can be useful when you are combining two ratings with one [`Stat`](#ratingsystems.core.model.stat.Stat) type, but wish for the resulting rating to be a different [`Stat`](#ratingsystems.core.model.stat.Stat) type.
+  
+  You can reverse the sort order of a [`Rating`](#ratingsystems.core.model.rating.Rating) object using the invert operator ('~')<br>
+```> reversed_rating = ~(rating1 + rating2)```<br>
+This can be useful when you are combining two ratings, but wish for the resulting rating to have the reverse sort order.
 
 <a id="ratingsystems.core.model.rating.Rating.get"></a>
 
@@ -1053,7 +1062,7 @@ Get a rating for a team.
 
 **Arguments**:
 
-- `team` _str_ - team name to get the rating for
+- `team` _str_ - name of the team to get the rating for
   
 
 **Returns**:
@@ -1072,7 +1081,7 @@ Get a rating value for a team.
 
 **Arguments**:
 
-- `team` _str_ - team name to get the rating for
+- `team` _str_ - name of the team to get the rating for
   
 
 **Returns**:
@@ -1110,12 +1119,31 @@ Get a team and all of their ratings.
 
 **Arguments**:
 
-- `team` _str_ - team name to get
+- `team` _str_ - name of the team to get
   
 
 **Returns**:
 
   [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) representation of the team and all their ratings, if team exists
+
+<a id="ratingsystems.core.model.rating.Rating.get_rank"></a>
+
+### get\_rank
+
+```python
+def get_rank(team: str) -> int
+```
+
+Get the rank of a team by rating.
+
+**Arguments**:
+
+- `team` _str_ - name of the team to get the rank of
+  
+
+**Returns**:
+
+  integer ranking of the team
 
 <a id="ratingsystems.core.model.rating.Rating.confidence_interval"></a>
 
@@ -1150,6 +1178,17 @@ def stdev() -> float
 
 Property reprenting the standard deviation of the rating.
 
+<a id="ratingsystems.core.model.rating.Rating.ranking"></a>
+
+### ranking
+
+```python
+@property
+def ranking() -> dict[str, int]
+```
+
+Property reprenting rankings of all teams in the rating.
+
 <a id="ratingsystems.core.model.rating.Rating.keys"></a>
 
 ### keys
@@ -1159,6 +1198,16 @@ def keys() -> Iterable[str]
 ```
 
 Iterator for the rating keys, which corresponds to the team names.
+
+<a id="ratingsystems.core.model.rating.Rating.values"></a>
+
+### values
+
+```python
+def values() -> Iterable[str]
+```
+
+Iterator for the rating values, which corresponds to the ratings.
 
 <a id="ratingsystems.core.model.rating.Rating.teams"></a>
 
@@ -1190,8 +1239,20 @@ Iterator for the ratings, which gives a [`Rating`](#ratingsystems.core.model.rat
 
 ```python
 @staticmethod
-def rank(rating: Self, reverse: bool = False) -> list[Tuple[str, Stat]]
+def rank(rating: Self) -> list[TeamRating]
 ```
+
+Rank teams by rating.
+
+**Arguments**:
+
+- `rating` _#Rating_ - rating to use for the ranking
+- `reverse` _bool_ - whether to reverse the rankings
+  
+
+**Returns**:
+
+  list of teams represented as a [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating), in order by each team's rating
 
 <a id="ratingsystems.core.model.stat"></a>
 
@@ -1257,6 +1318,7 @@ Class representing a team and its ratings. This includes any sub ratings of the 
   - `wins` _int_ - number of games the team has won
   - `losses` _int_ - number of games the team has lost
   - `ties` _int_ - number of games the team has tied
+  - `conference` _str_ - conference the team belongs to (default: "")
   - `**sub_rating` - additional [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating) objects to be stored as sub ratings for the [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating); can be accessed via a property based on the name of the [`Rating`](#ratingsystems.core.model.rating.Rating) that produced the [`TeamRating`](#ratingsystems.core.model.team_rating.TeamRating)
 
 <a id="ratingsystems.core.model.team_rating.TeamRating.ratings"></a>

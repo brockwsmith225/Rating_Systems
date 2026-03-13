@@ -23,6 +23,7 @@ class Rating():
     - `games` _list[#Game]_ - list of games used to generate this rating
     - `name` _str_ - name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore ('_') will be hidden and will not appear unless explicitly requested (default: None)
     - `stat_class` _Type[#Stat]_ - #Stat type that, if specified, is used to convert ratings (default: None)
+    - `reverse_sort` _bool_ - whether to reverse the order when sorting the #Rating (default: False)
     - `**auxillary_data` - additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
     
     #Rating objects are iterable. Iterating on a #Rating object will yield a #TeamRating representing each team.
@@ -51,9 +52,13 @@ class Rating():
     You can cast the ratings of a #Rating object to a different #Stat class using the or operator ('|')<br>
     ```> rating = (rating1 + rating2) | Stat```<br>
     This can be useful when you are combining two ratings with one #Stat type, but wish for the resulting rating to be a different #Stat type.
+
+    You can reverse the sort order of a #Rating object using the invert operator ('~')<br>
+    ```> reversed_rating = ~(rating1 + rating2)```<br>
+    This can be useful when you are combining two ratings, but wish for the resulting rating to have the reverse sort order.
     """
 
-    def __init__(self, rating: Union[dict[str, Stat], Any], games: list[Game], name: str = None, stat_class: Type[Stat] = None, **auxilliary_data):
+    def __init__(self, rating: Union[dict[str, Stat], Any], games: list[Game], name: str = None, stat_class: Type[Stat] = None, reverse_sort: bool = False, **auxilliary_data):
         if isinstance(rating, dict):
             for team, value in rating.items():
                 if not issubclass(type(value), Stat):
@@ -69,6 +74,8 @@ class Rating():
         self._confidence_interval = None
         self._mean = None
         self._stdev = None
+        self._ranking = None
+        self._reverse_sort = reverse_sort
 
         self._sub_ratings = {}
 
@@ -100,7 +107,7 @@ class Rating():
         Get a rating for a team.
 
         Args:
-            team (str): team name to get the rating for
+            team (str): name of the team to get the rating for
 
         Returns:
             #Stat representing the rating of the team, if team exists
@@ -114,7 +121,7 @@ class Rating():
         Get a rating value for a team.
 
         Args:
-            team (str): team name to get the rating for
+            team (str): name of the team to get the rating for
 
         Returns:
             float representation of the rating of the team, if team exists
@@ -142,7 +149,7 @@ class Rating():
         Get a team and all of their ratings.
 
         Args:
-            team (str): team name to get
+            team (str): name of the team to get
 
         Returns:
             #TeamRating representation of the team and all their ratings, if team exists
@@ -154,8 +161,21 @@ class Rating():
             rating=self.get(team),
             wins=len([1 for game in self.games if (game.home_team == team and game.home_winner) or (game.away_team == team and game.away_winner)]) if self.games else 0,
             losses=len([1 for game in self.games if (game.home_team == team and game.away_winner) or (game.away_team == team and game.home_winner)]) if self.games else 0,
+            conference=[game.home_conference if game.home_team == team else game.away_conference for game in self.games if game.home_team == team or game.away_team == team][0],
             **{name: rating.get_team(team) for name, rating in self._sub_ratings.items()},
         )
+
+    def get_rank(self, team: str) -> int:
+        """
+        Get the rank of a team by rating.
+
+        Args:
+            team (str): name of the team to get the rank of
+
+        Returns:
+            integer ranking of the team
+        """
+        return self.ranking.get(team)
 
     @property
     def confidence_interval(self) -> float:
@@ -191,6 +211,19 @@ class Rating():
         self._stdev = math.sqrt(sum([pow(v - self.mean, 2) for v in ratings_values]) / len(ratings_values))
         return self._stdev
 
+    @property
+    def ranking(self) -> dict[str, int]:
+        """
+        Property reprenting rankings of all teams in the rating.
+        """
+        if not self._ranking:
+            ranking = sorted(list(iter(self)), key=lambda t: t.rating.value)
+            if not self._reverse_sort:
+                ranking = list(reversed(ranking))
+            self._ranking = {team.name: r + 1 for r, team in enumerate(ranking)}
+
+        return self._ranking
+
     def __iter__(self) -> Iterable[TeamRating]:
         team_ratings = []
         for team in self._rating.keys():
@@ -202,6 +235,12 @@ class Rating():
         Iterator for the rating keys, which corresponds to the team names.
         """
         return self._rating.keys()
+
+    def values(self) -> Iterable[str]:
+        """
+        Iterator for the rating values, which corresponds to the ratings.
+        """
+        return self._rating.values()
 
     def teams(self) -> Iterable[str]:
         """
@@ -216,7 +255,28 @@ class Rating():
         Args:
             hidden (bool): include hidden ratings, i.e. ones whose name begins with an underscore ('_')
         """
-        return iter([self] + [rating for r in self._sub_ratings.values() for rating in r.ratings(hidden=hidden) if hidden or not r.name.startswith("_")])
+        if self.name is not None:
+            return iter([self] + [rating for r in self._sub_ratings.values() for rating in r.ratings(hidden=hidden) if hidden or not r.name.startswith("_")])
+        else:
+            return iter([rating for r in self._sub_ratings.values() for rating in r.ratings(hidden=hidden) if hidden or not r.name.startswith("_")])
+
+    @staticmethod
+    def rank(rating: Self) -> list[TeamRating]:
+        """
+        Rank teams by rating.
+
+        Args:
+            rating (#Rating): rating to use for the ranking
+            reverse (bool): whether to reverse the rankings
+
+        Returns:
+            list of teams represented as a #TeamRating, in order by each team's rating
+        """
+
+        ranking = sorted(list(iter(rating)), key=lambda t: t.rating.value)
+        if not rating._reverse_sort:
+            return list(reversed(ranking))
+        return [rating.get_team(team) for team in self.ranking.keys()]
 
     def __add__(self, other: Any) -> Self:
         if isinstance(other, Rating) or isinstance(other, Number):
@@ -290,7 +350,7 @@ class Rating():
             if other in sub_ratings:
                 sub_ratings = {**sub_ratings[other]._sub_ratings, **sub_ratings}
                 del sub_ratings[other]
-            return Rating(self._rating, name=other, games=self.games, stat_class=self._stat_class, **sub_ratings)
+            return Rating(self._rating, name=other, games=self.games, stat_class=self._stat_class, reverse_sort=self._reverse_sort, **sub_ratings)
         else:
             raise TypeError(f"Unsupported operand type(s) for %: 'Rating' and '{type(other)}'")
 
@@ -300,7 +360,7 @@ class Rating():
         """
         if isinstance(other, Rating):
             if other.name is not None:
-                return Rating(self._rating, name=self.name, games=self.games, stat_class=self._stat_class, **self._sub_ratings, **{other.name: other})
+                return Rating(self._rating, name=self.name, games=self.games, stat_class=self._stat_class, reverse_sort=self._reverse_sort, **self._sub_ratings, **{other.name: other})
             else:
                 raise TypeError("Cannot add sub rating without a name")
         else:
@@ -311,22 +371,21 @@ class Rating():
         Create a Rating where its ratings are cast to a Stat class.
         """
         if issubclass(other, Stat):
-            return Rating(self._rating, name=self.name, games=self.games, stat_class=other, **self._sub_ratings)
+            return Rating(self._rating, name=self.name, games=self.games, stat_class=other, reverse_sort=self._reverse_sort, **self._sub_ratings)
         else:
             raise TypeError(f"Unsupported operand type(s) for |: 'Rating' and '{type(other)}'")
+
+    def __invert__(self) -> Self:
+        """
+        Create a Rating with reverse_sort made opposite.
+        """
+        return Rating(self._rating, name=self.name, games=self.games, stat_class=self._stat_class, reverse_sort=not self._reverse_sort, **self._sub_ratings)
 
     def __repr__(self) -> str:
         if self.name:
             return f"Rating<{self.name}>"
         else:
             return "Rating<>"
-
-    @staticmethod
-    def rank(rating: Self, reverse: bool = False) -> list[Tuple[str, Stat]]:
-        ranking = sorted(list(iter(rating)), key=lambda t: -1 * t.rating.value)
-        if reverse:
-            return reversed(ranking)
-        return ranking
 
 
 class _Combination(ABC):
@@ -356,6 +415,9 @@ class _Add(_Combination):
             return None
         return self.first_rating.get(team) + self.second_rating.get(team)
 
+    def values(self) -> list[Stat]:
+        return [v1 + v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+
 
 class _Subtract(_Combination):
 
@@ -363,6 +425,9 @@ class _Subtract(_Combination):
         if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
             return None
         return self.first_rating.get(team) - self.second_rating.get(team)
+
+    def values(self) -> list[Stat]:
+        return [v1 - v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
 
 
 class _Multiply(_Combination):
@@ -372,6 +437,9 @@ class _Multiply(_Combination):
             return None
         return self.first_rating.get(team) * self.second_rating.get(team)
 
+    def values(self) -> list[Stat]:
+        return [v1 * v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+
 
 class _Divide(_Combination):
 
@@ -379,6 +447,9 @@ class _Divide(_Combination):
         if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
             return None
         return self.first_rating.get(team) / self.second_rating.get(team)
+
+    def values(self) -> list[Stat]:
+        return [v1 / v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
 
 
 class _Pow(_Combination):
@@ -388,6 +459,9 @@ class _Pow(_Combination):
             return None
         return self.first_rating.get(team) ** self.second_rating.get(team)
 
+    def values(self) -> list[Stat]:
+        return [v1 ** v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+
 
 class _AbsoluteValue(_Combination):
 
@@ -395,6 +469,9 @@ class _AbsoluteValue(_Combination):
         if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
             return None
         return abs(self.first_rating.get(team))
+
+    def values(self) -> list[Stat]:
+        return [abs(v) for v in self.first_rating.values()]
 
 
 # class Rating():

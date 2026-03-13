@@ -19,7 +19,7 @@ from ratingsystems.core.util import center, ljustify, rjustify
 # Common options
 year = click.option("--year", "-y", type=int, default=datetime.now().year, help="Year of data to use")
 datasource = click.option("--data", "-d", "datasource", type=SelectChoice({}, case_sensitive=False), help="Select a data source from those you've installed")
-ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), help="Select a rating system from those you've installed")
+ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), multiple=True, default=(), help="Select a rating system from those you've installed, can be set multiple times to combine rating systems")
 predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.name: RatingDifferencePredictor}, case_sensitive=False), default=RatingDifferencePredictor.name, help="Select a predictor from those you've installed")
 options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="Set an option to be passed to any plugin that accepts it, can be set multiple times, see specific plugin documentation for what options are available")
 
@@ -50,9 +50,9 @@ def _load_cli_plugins():
 def cli(
     context: click.Context,
     year: int = datetime.now().year,
-    datasource: Optional[DataSource] = None,
-    ratingsystem: Optional[RatingSystem] = None,
-    predictor: Optional[Predictor] = None,
+    datasource: Optional[Type[DataSource]] = None,
+    ratingsystem: Tuple[Type[RatingSystem]] = (),
+    predictor: Optional[Type[Predictor]] = None,
     options: dict[str, Any] = {},
 ):
     """
@@ -77,7 +77,7 @@ def config(
     context: click.Context,
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
-    ratingsystem: Optional[RatingSystem] = None,
+    ratingsystem: Tuple[Type[RatingSystem]] = (),
     predictor: Optional[Predictor] = None,
     options: dict[str, Any] = {},
 ):
@@ -92,7 +92,7 @@ def config(
         if datasource is not None:
             click.echo(f"datasource={datasource.name}")
         if ratingsystem is not None:
-            click.echo(f"ratingsystem={ratingsystem.name}")
+            click.echo(f"ratingsystem={[r.name for r in ratingsystem]}")
         if predictor is not None:
             click.echo(f"predictor={predictor.name}")
         if len(options) > 0:
@@ -110,8 +110,8 @@ def set_defaults(context: click.Context, new_parameters: Optional[dict[str, Any]
         for param, value in new_parameters.items():
             if isclass(value):
                 parameters[param] = value.name
-            elif isinstance(value, tuple):
-                parameters[param] = context.default_map.get(param, ()) + value
+            # elif isinstance(value, tuple):
+            #     parameters[param] = context.default_map.get(param, ()) + value
             elif isinstance(value, dict):
                 parameters[param] = {k: v for k, v in {**context.default_map.get(param, {}), **value}.items() if v is not None}
             else:
@@ -134,7 +134,7 @@ def set_defaults(context: click.Context, new_parameters: Optional[dict[str, Any]
 def fetch(
     context: click.Context,
     year: int = datetime.now().year,
-    datasource: Optional[DataSource] = None,
+    datasource: Optional[Type[DataSource]] = None,
     bracket: bool = False,
 ):
     """
@@ -191,16 +191,16 @@ def fetch(
 @ratingsystem
 @options
 @click.option("--pretty/--no-pretty", type=bool, is_flag=True, default=False, help="Pretty print rating")
-@click.option("--ranks/--no-ranks", type=bool, is_flag=True, default=False, help="Print ranks for each rating")
+@click.option("--ranks/--no-ranks", "include_ranks", type=bool, is_flag=True, default=False, help="Print ranks for each rating")
 @click.option("--hidden/--no-hidden", type=bool, is_flag=True, default=False, help="Include hidden ratings in output")
 @click.pass_context
 def rate(
     context: click.Context,
     year: int = datetime.now().year,
-    datasource: Optional[DataSource] = None,
-    ratingsystem: Optional[RatingSystem] = None,
+    datasource: Optional[Type[DataSource]] = None,
+    ratingsystem: Tuple[Type[RatingSystem]] = (),
     pretty: bool = False,
-    ranks: bool = False,
+    include_ranks: bool = False,
     hidden: bool = False,
     options: dict[str, Any] = {},
 ):
@@ -211,18 +211,74 @@ def rate(
 
     rating = _create_rating(context, ratingsystem, options, games)
 
-    if pretty:
-        click.echo(f"{rjustify('RANK', 4)} | {ljustify('TEAM', 30)} | {center('RECORD', 7)} | {' | '.join([center(r.name.upper(), 10) for r in rating.ratings(hidden=hidden)])}")
-    else:
-        click.echo(f"RANK,TEAM,RECORD,{','.join([r.name.upper() for r in rating.ratings(hidden=hidden)])}")
+    ranking = Rating.rank(rating)
 
-    rank = 1
-    for team in Rating.rank(rating):
+    ranks = {}
+    if include_ranks:
+        for team in rating.teams():
+            ranks[team] = [r.get_rank(team) for r in rating.ratings(hidden=hidden)]
+    else:
+        for team in rating.teams():
+            ranks[team] = [rating.get_rank(team)]
+
+    if pretty:
+        click.echo(f"| {rjustify('RANK', 4)} | ", nl=False)
+        click.echo(f"{ljustify('TEAM', 30)} | ", nl=False)
+        click.echo(f"{center('RECORD', 7)} | ", nl=False)
+        click.echo(f"{center('CONFERENCE', 15)} | ", nl=False)
+        for r in rating.ratings(hidden=hidden):
+            if include_ranks:
+                click.echo(f"{center(r.name.upper(), 13)} | ", nl=False)
+            else:
+                click.echo(f"{center(r.name.upper(), 10)} | ", nl=False)
+        click.echo()
+        click.echo(f"|{'-' * 6}|", nl=False)
+        click.echo(f"{'-' * 32}|", nl=False)
+        click.echo(f"{'-' * 9}|", nl=False)
+        click.echo(f"{'-' * 17}|", nl=False)
+        for r in rating.ratings(hidden=hidden):
+            if include_ranks:
+                click.echo(f"{'-' * 15}|", nl=False)
+            else:
+                click.echo(f"{'-' * 12}|", nl=False)
+        click.echo()
+    else:
+        click.echo("RANK,", nl=False)
+        click.echo("TEAM,", nl=False)
+        click.echo("RECORD,", nl=False)
+        click.echo("CONFERENCE,", nl=False)
+        for r in rating.ratings(hidden=hidden):
+            if include_ranks:
+                click.echo(f"{r.name.upper()},", nl=False)
+            else:
+                click.echo(f"{r.name.upper()},", nl=False)
+        click.echo()
+
+    for team in ranking:
         if pretty:
-            click.echo(f"{rjustify(rank, 4)} | {ljustify(team.name, 30)} | {rjustify(team.wins, 3)}-{ljustify(team.losses, 3)} | {' | '.join([center(rating.formatted(), 10) for rating in team.ratings(hidden=hidden)])}")
+            click.echo(f"| {rjustify(ranks[team.name][0], 4)} | ", nl=False)
+            click.echo(f"{ljustify(team.name, 30)} | ", nl=False)
+            click.echo(f"{rjustify(team.wins, 3)}-{ljustify(team.losses, 3)} | ", nl=False)
+            click.echo(f"{ljustify(team.conference, 15)} | ", nl=False)
+            if include_ranks:
+                for r, rank in zip(team.ratings(hidden=hidden), ranks[team.name]):
+                    click.echo(f"{rjustify(r.formatted(), 6)} {ljustify('(' + str(rank) + ')', 6)} | ", nl=False)
+            else:
+                for r in team.ratings(hidden=hidden):
+                    click.echo(f"{center(r.formatted(), 10)} | ", nl=False)
+            click.echo()
         else:
-            click.echo(f"{rank},{team.name},{team.wins}-{team.losses},{','.join([str(rating.value) for rating in team.ratings(hidden=hidden)])}")
-        rank += 1
+            click.echo(f"{ranks[team.name][0]},", nl=False)
+            click.echo(f"{team.name},", nl=False)
+            click.echo(f"{team.wins}-{team.losses},", nl=False)
+            click.echo(f"{team.conference},", nl=False)
+            if include_ranks:
+                for r, rank in zip(team.ratings(hidden=hidden), ranks[team.name]):
+                    click.echo(f"{r.value},{rank},", nl=False)
+            else:
+                for r in team.ratings(hidden=hidden):
+                    click.echo(f"{r.value},", nl=False)
+            click.echo()
 
 
 @cli.group(invoke_without_command=True)
@@ -239,9 +295,9 @@ def predict(
     team: str,
     opponent: str,
     year: int = datetime.now().year,
-    datasource: Optional[DataSource] = None,
-    ratingsystem: Optional[RatingSystem] = None,
-    predictor: Optional[Predictor] = None,
+    datasource: Optional[Type[DataSource]] = None,
+    ratingsystem: Tuple[Type[RatingSystem]] = (),
+    predictor: Optional[Type[Predictor]] = None,
     options: dict[str, Any] = {},
 ):
     """
@@ -272,9 +328,9 @@ def predict(
 def bracket(
     context: click.Context,
     year: int = datetime.now().year,
-    datasource: Optional[DataSource] = None,
-    ratingsystem: Optional[RatingSystem] = None,
-    predictor: Optional[Predictor] = None,
+    datasource: Optional[Type[DataSource]] = None,
+    ratingsystem: Tuple[Type[RatingSystem]] = (),
+    predictor: Optional[Type[Predictor]] = None,
     options: dict[str, Any] = {},
     display: bool = False,
     pretty: bool = False,
@@ -293,7 +349,7 @@ def bracket(
     try:
         bracket.evaluate(p)
     except Exception as e:
-        click.echo(f"Error in evaluating the bracket for {predictor.name} {ratingsystem.name} {datasource.name} {year}: {e}")
+        click.echo(f"Error in evaluating the bracket: {e}")
         context.exit(1)
 
     if display:
@@ -341,28 +397,33 @@ def _load_bracket(context: click.Context, datasource: Type[DataSource], year: in
     return bracket
 
 
-def _create_rating(context: click.Context, ratingsystem: Type[RatingSystem], options: dict[str, Any], games: list[Game], save_rating: bool = True, load_rating: bool = False) -> Rating:
-    if ratingsystem is None:
+def _create_rating(context: click.Context, ratingsystems: Tuple[Type[RatingSystem]], options: dict[str, Any], games: list[Game], save_rating: bool = True, load_rating: bool = False) -> Rating:
+    if len(ratingsystems) == 0:
         click.echo("Input Error: must specify a rating system (-r, --rating)")
         context.exit(1)
 
-    if load_rating and ratingsystem.name in context.obj["ratings"]:
-        # If in shell mode and we've already made a rating with this rating system, use it
-        return context.obj["ratings"][ratingsystem.name]
+    ratings = []
 
-    rs = ratingsystem(**filter_options(options, ratingsystem))
+    for ratingsystem in ratingsystems:
+        if load_rating and ratingsystem.name in context.obj["ratings"]:
+            # If in shell mode and we've already made a rating with this rating system, use it
+            ratings.append(context.obj["ratings"][ratingsystem.name])
 
-    try:
-        rating = rs.rate(games)
-    except Exception as e:
-        click.echo(f"Error in creating rating for {ratingsystem.name}: {e}")
-        context.exit(1)
+        rs = ratingsystem(**filter_options(options, ratingsystem))
 
-    if save_rating:
-        # Store rating for shell mode
-        context.obj["ratings"][rs.name] = rating
+        try:
+            ratings.append(rs.rate(games))
+        except Exception as e:
+            click.echo(f"Error in creating rating for {ratingsystem.name}: {e}")
+            context.exit(1)
 
-    return rating
+        if save_rating:
+            # Store rating for shell mode
+            context.obj["ratings"][rs.name] = ratings[-1]
+
+    if len(ratings) == 1:
+        return ratings[0]
+    return (sum(ratings) / len(ratings)) % "aggregate"
 
 
 def _create_prediction(context: click.Context, predictor: Type[Predictor], options: dict[str, Any], rating: Rating, team: str, opponent: str) -> Prediction:

@@ -1288,7 +1288,7 @@ Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor)
 
 ### name
 
-(str) Name of predictor; will be used by the CLI, so ideally this is short
+_str_ Name of predictor; will be used by the CLI, so ideally this is short
 
 <a id="ratingsystems.core.predictor.Predictor.predict"></a>
 

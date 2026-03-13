@@ -27,45 +27,35 @@ class Rating():
 
     All of the arithmetic operators work on #Rating objects just like regular numbers. The result of these arithmetic operators will be a new #Rating object that contains the original ratings transformed by the arithmetic operation.
         ex.
-            ```python
             (rating + 1).get_value(team) == rating.get_value(team) + 1
             (2 * rating).get_value(team) == 2 * rating.get_value(team)
             (rating1 - rating2).get_value(team) == rating1.get_value(team) - rating2.get_value(team)
-            ```
 
     This can be used to create new ratings that are combinations of existing ratings. For example, it may be useful in a rating system to create simple ratings, then combine and transform these into more complex ratings, without having to do so across all teams. It may also be useful to modify and/or combine ratings from different rating systems.
 
     #Rating objects with a name will be accessible in the resulting #Rating object via a property based on the name of the #Rating object.
         ex.
-            ```python
             named_rating = Rating(data, games, name="abc")
             (rating + 1).abc == named_rating
-            ```
 
     These operators also work on #Rating objects, to achieve a few other useful features:
 
         Add/Change Name (%):
             You can add or change the name of a #Rating object using the modulo operator (%)
                 ex.
-                    ```python
                     rating = (rating1 + rating2) % "new_name"
-                    ```
             This can be especially useful when combined with the arithmetic operators to give names to the new ratings you're creating.
 
         Add Sub Rating (<<):
             You can add a #Rating object as a sub rating of another #Rating object using the left shift operator (<<)
                 ex.
-                    ```python
                     rating = (rating1 + rating2) << sub_rating
-                    ```
             This can be useful to add additional ratings that weren't used in calculating your rating. (Note: the sub rating must have a name, otherwise this operation will fail) 
 
         Cast ratings to #Stat class (|):
             You can cast the ratings of a #Rating object to a different #Stat class using the or operator (|)
                 ex.
-                    ```python
                     rating = (rating1 + rating2) | #Stat
-                    ```
             This can be useful when you are combining two ratings with one #Stat type, but wish for the resulting rating to be a different #Stat type.
     """
 

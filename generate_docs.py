@@ -5,6 +5,7 @@ from pydoc_markdown.interfaces import Context, Resolver
 from pydoc_markdown.contrib.loaders.python import PythonLoader
 from pydoc_markdown.contrib.processors.crossref import CrossrefProcessor
 from pydoc_markdown.contrib.processors.filter import FilterProcessor
+from pydoc_markdown.contrib.processors.smart import SmartProcessor
 from pydoc_markdown.contrib.renderers.markdown import MarkdownRenderer
 
 
@@ -22,8 +23,9 @@ resolver = ReferenceResolver()
 
 context = Context(directory=".")
 loader = PythonLoader(search_path=["src"])
-processor = CrossrefProcessor()
 filter = FilterProcessor(expression="not name.startswith(\"_\")")
+smart = SmartProcessor()
+processor = CrossrefProcessor()
 renderer = MarkdownRenderer(
     filename="docs.md",
     render_toc=True,
@@ -35,6 +37,7 @@ renderer = MarkdownRenderer(
 
 loader.init(context)
 filter.init(context)
+smart.init(context)
 processor.init(context)
 renderer.init(context)
 
@@ -46,6 +49,7 @@ for module in modules:
         resolver.references[member.name] = f"#{module.name}.{member.name}"
 
 filter.process(modules, resolver)
+smart.process(modules, resolver)
 processor.process(modules, resolver)
 
 old_file = ""

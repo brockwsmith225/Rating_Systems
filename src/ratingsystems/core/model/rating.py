@@ -19,11 +19,11 @@ class Rating():
     Class representing a rating of teams. This class also provides many helpful functions for interacting with the ratings.
 
     Parameters:
-    - **rating** *(dict[str, #Stat])* - mapping of team names to ratings, ratings should be represented by a #Stat object
-    - **games** *(list[Game])* - list of games used to generate this rating
-    - **name** *(str)* - name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore ('_') will be hidden and will not appear unless explicitly requested (default: None)
-    - **stat_class** *(Type[Stat])* - Stat type that, if specified, is used to convert ratings (default: None)
-    - **\\*\\*auxillary_data** - additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
+    - `rating` _dict[str, #Stat]_ - mapping of team names to ratings, ratings should be represented by a #Stat object
+    - `games` _list[#Game]_ - list of games used to generate this rating
+    - `name` _str_ - name of the rating; when transforming #Rating objects through arithmetic operators, #Rating objects with names will be accessible in the resulting #Rating object via a property based on the name; names that begin with an underscore ('_') will be hidden and will not appear unless explicitly requested (default: None)
+    - `stat_class` _Type[#Stat]_ - #Stat type that, if specified, is used to convert ratings (default: None)
+    - `**auxillary_data` - additional fields to be stored on the #Rating; this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
     
     #Rating objects are iterable. Iterating on a #Rating object will yield a #TeamRating representing each team.
 
@@ -35,7 +35,7 @@ class Rating():
     This can be used to create new ratings that are combinations of existing ratings. For example, it may be useful in a rating system to create simple ratings, then combine and transform these into more complex ratings, without having to do so across all teams. It may also be useful to modify and/or combine ratings from different rating systems.
 
     #Rating objects with a name will be accessible in the resulting #Rating object via a property based on the name of the #Rating object.<br>
-    ```named\\_rating = Rating(data, games, name="abc")```<br>
+    ```named_rating = Rating(data, games, name="abc")```<br>
     ```(named_rating + 1).abc == named_rating```
     
     The following useful operations can also be achieved using other operators.

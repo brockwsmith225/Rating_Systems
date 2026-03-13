@@ -1196,6 +1196,8 @@ Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.Rat
 
 #### name
 
+Name of rating system. Will be used by the CLI, so ideally this is short
+
 <a id="ratingsystems.core.rating_system.RatingSystem.rate"></a>
 
 #### rate

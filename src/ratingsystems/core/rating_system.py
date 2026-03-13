@@ -29,6 +29,7 @@ class RatingSystem(ABC):
     """
 
     name: str = ""
+    "Name of rating system. Will be used by the CLI, so ideally this is short"
 
     def __init__(self):
         pass

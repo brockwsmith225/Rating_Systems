@@ -595,13 +595,13 @@ Classes that inherit from [`DataSource`](#ratingsystems.core.data_source.DataSou
 
 <a id="ratingsystems.core.data_source.DataSource.name"></a>
 
-### name: `str`
+### name
 
 (str) Name of the data source; will be used by the CLI, so ideally this is short
 
 <a id="ratingsystems.core.data_source.DataSource.stats_class"></a>
 
-### stats\_class: `type[GameStats]`
+### stats\_class
 
 (type[[`GameStats`](#ratingsystems.core.model.game.GameStats)]) Class to use for the game stats; useful if you want to include additional stats for a data source (default: [`GameStats`](#ratingsystems.core.model.game.GameStats))
 
@@ -696,27 +696,27 @@ class Bracket()
 
 <a id="ratingsystems.core.model.bracket.Bracket.subbracket_1"></a>
 
-### subbracket\_1: `Optional[Any]`
+### subbracket\_1
 
 <a id="ratingsystems.core.model.bracket.Bracket.subbracket_2"></a>
 
-### subbracket\_2: `Optional[Any]`
+### subbracket\_2
 
 <a id="ratingsystems.core.model.bracket.Bracket.seed_1"></a>
 
-### seed\_1: `Optional[int]`
+### seed\_1
 
 <a id="ratingsystems.core.model.bracket.Bracket.seed_2"></a>
 
-### seed\_2: `Optional[int]`
+### seed\_2
 
 <a id="ratingsystems.core.model.bracket.Bracket.bracket_name"></a>
 
-### bracket\_name: `str`
+### bracket\_name
 
 <a id="ratingsystems.core.model.bracket.Bracket.odds"></a>
 
-### odds: `Dict[str, float]`
+### odds
 
 <a id="ratingsystems.core.model.bracket.Bracket.depth"></a>
 
@@ -782,13 +782,13 @@ Can be inheritted by another class to add more stats.
 
 <a id="ratingsystems.core.model.game.GameStats.points"></a>
 
-### points: `Optional[int]`
+### points
 
 (int) Points scored
 
 <a id="ratingsystems.core.model.game.GameStats.period_points"></a>
 
-### period\_points: `list[int]`
+### period\_points
 
 (list[int]) Points scored in each period
 
@@ -805,145 +805,145 @@ Class representing a game.
 
 <a id="ratingsystems.core.model.game.Game.id"></a>
 
-### id: `int`
+### id
 
 (int) Unique id for this game
 
 <a id="ratingsystems.core.model.game.Game.season"></a>
 
-### season: `int`
+### season
 
 (int) Season this game was played in
 
 <a id="ratingsystems.core.model.game.Game.home_team"></a>
 
-### home\_team: `str`
+### home\_team
 
 (str) Name of the home team
 
 <a id="ratingsystems.core.model.game.Game.away_team"></a>
 
-### away\_team: `str`
+### away\_team
 
 (str) Name of the away team
 
 <a id="ratingsystems.core.model.game.Game.preseason"></a>
 
-### preseason: `bool`
+### preseason
 
 (bool) Whether this game was in the preseason (default: False)
 
 <a id="ratingsystems.core.model.game.Game.postseason"></a>
 
-### postseason: `bool`
+### postseason
 
 (bool) Whether this game was in the postseason (default: False)
 
 <a id="ratingsystems.core.model.game.Game.start_date"></a>
 
-### start\_date: `Optional[datetime]`
+### start\_date
 
 (datetime) Start date of the game (default: None)
 
 <a id="ratingsystems.core.model.game.Game.neutral_site"></a>
 
-### neutral\_site: `bool`
+### neutral\_site
 
 (bool) Whether this game was played at a neutral site (default: False)
 
 <a id="ratingsystems.core.model.game.Game.conference_game"></a>
 
-### conference\_game: `bool`
+### conference\_game
 
 (bool) Whether this game was a conference game (default: False)
 
 <a id="ratingsystems.core.model.game.Game.complete"></a>
 
-### complete: `bool`
+### complete
 
 (bool) Whether this game is complete (default: True)
 
 <a id="ratingsystems.core.model.game.Game.overtime"></a>
 
-### overtime: `bool`
+### overtime
 
 (bool) Whether this game went to overtime (default: False)
 
 <a id="ratingsystems.core.model.game.Game.home_conference"></a>
 
-### home\_conference: `Optional[str]`
+### home\_conference
 
 (str) Name of the conference of the home team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.home_seed"></a>
 
-### home\_seed: `Optional[int]`
+### home\_seed
 
 (int) Seed of the home team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.home_points"></a>
 
-### home\_points: `Optional[int]`
+### home\_points
 
 (int) Points scored by the home team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.home_period_points"></a>
 
-### home\_period\_points: `list[int]`
+### home\_period\_points
 
 (list[int]) Points scored by the home team in each period (default: None)
 
 <a id="ratingsystems.core.model.game.Game.home_winner"></a>
 
-### home\_winner: `Optional[bool]`
+### home\_winner
 
 (bool) Whether the home team won (default: None)
 
 <a id="ratingsystems.core.model.game.Game.home_stats"></a>
 
-### home\_stats: `Optional[GameStats]`
+### home\_stats
 
 ([`GameStats`](#ratingsystems.core.model.game.GameStats)) Additional stats for the home team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.away_conference"></a>
 
-### away\_conference: `Optional[str]`
+### away\_conference
 
 (str) Name of the conference of the away team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.away_seed"></a>
 
-### away\_seed: `Optional[int]`
+### away\_seed
 
 (int) Seed of the away team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.away_points"></a>
 
-### away\_points: `Optional[int]`
+### away\_points
 
 (int) Points scored by the away team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.away_period_points"></a>
 
-### away\_period\_points: `list[int]`
+### away\_period\_points
 
 (list[int]) Points scored by the away team in each period (default: None)
 
 <a id="ratingsystems.core.model.game.Game.away_winner"></a>
 
-### away\_winner: `Optional[bool]`
+### away\_winner
 
 (bool) Whether the away team won (default: None)
 
 <a id="ratingsystems.core.model.game.Game.away_stats"></a>
 
-### away\_stats: `Optional[GameStats]`
+### away\_stats
 
 ([`GameStats`](#ratingsystems.core.model.game.GameStats)) Additional stats for the away team (default: None)
 
 <a id="ratingsystems.core.model.game.Game.stats_class"></a>
 
-### stats\_class: `InitVar[Optional[Type[GameStats]]]`
+### stats\_class
 
 (type[[`GameStats`](#ratingsystems.core.model.game.GameStats)]) Class to use for the game stats; useful if you want to include additional stats for a game (default: [`GameStats`](#ratingsystems.core.model.game.GameStats))
 
@@ -964,37 +964,37 @@ Class representing a prediction.
 
 <a id="ratingsystems.core.model.prediction.Prediction.team"></a>
 
-### team: `str`
+### team
 
 (str) Name of the team
 
 <a id="ratingsystems.core.model.prediction.Prediction.opponent"></a>
 
-### opponent: `str`
+### opponent
 
 (str) Name of the opponent
 
 <a id="ratingsystems.core.model.prediction.Prediction.line"></a>
 
-### line: `Optional[float]`
+### line
 
 (float) Predicted line of the matchup (default: None)
 
 <a id="ratingsystems.core.model.prediction.Prediction.odds"></a>
 
-### odds: `Optional[float]`
+### odds
 
 (float) Predicted odds of the matchup (default: None)
 
 <a id="ratingsystems.core.model.prediction.Prediction.team_score"></a>
 
-### team\_score: `Optional[float]`
+### team\_score
 
 (float) Predicted score of team in the matchup (default: None)
 
 <a id="ratingsystems.core.model.prediction.Prediction.opponent_score"></a>
 
-### opponent\_score: `Optional[float]`
+### opponent\_score
 
 (float) Predicted score of opponent in the matchup (default: None)
 
@@ -1013,45 +1013,36 @@ class Rating()
 Class representing a rating of teams. This class also provides many helpful functions for interacting with the ratings.
 
 Parameters:
-    - rating (dict[str, [`Stat`](#ratingsystems.core.model.stat.Stat)]): mapping of team names to ratings, represented by a [`Stat`](#ratingsystems.core.model.stat.Stat) object
-    - games (list[Game]): list of games used to generate this rating
-    - name (str): name of the rating; when transforming [`Rating`](#ratingsystems.core.model.rating.Rating) objects through arithmetic operators, [`Rating`](#ratingsystems.core.model.rating.Rating) objects with names will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)
-    - stat_class (Type[Stat]): Stat type that, if specified, is used to convert ratings (default: None)
-    - **auxillary_data: additional fields to be stored on the [`Rating`](#ratingsystems.core.model.rating.Rating); this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
+- **rating** *(dict[str, [`Stat`](#ratingsystems.core.model.stat.Stat)])* - mapping of team names to ratings, ratings should be represented by a [`Stat`](#ratingsystems.core.model.stat.Stat) object
+- **games** *(list[Game])* - list of games used to generate this rating
+- **name** *(str)* - name of the rating; when transforming [`Rating`](#ratingsystems.core.model.rating.Rating) objects through arithmetic operators, [`Rating`](#ratingsystems.core.model.rating.Rating) objects with names will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name; names that begin with an underscore will be hidden and will not appear unless explicitly requested (default: None)
+- **stat_class** *(Type[Stat])* - Stat type that, if specified, is used to convert ratings (default: None)
+- **\*\*auxillary_data** - additional fields to be stored on the [`Rating`](#ratingsystems.core.model.rating.Rating); this can be sub rating, additional data needed for a predictor, or anything else useful to a consumer of the rating
 
-All of the arithmetic operators work on [`Rating`](#ratingsystems.core.model.rating.Rating) objects just like regular numbers. The result of these arithmetic operators will be a new [`Rating`](#ratingsystems.core.model.rating.Rating) object that contains the original ratings transformed by the arithmetic operation.
-    ```python
-    (rating + 1).get_value(team) == rating.get_value(team) + 1
-    (2 * rating).get_value(team) == 2 * rating.get_value(team)
-    (rating1 - rating2).get_value(team) == rating1.get_value(team) - rating2.get_value(team)
-    ```
+
+All of the arithmetic operators work on [`Rating`](#ratingsystems.core.model.rating.Rating) objects just like regular numbers. The result of these arithmetic operators will be a new [`Rating`](#ratingsystems.core.model.rating.Rating) object that contains the original ratings transformed by the arithmetic operation.<br>
+```(rating + 1).get_value(team) == rating.get_value(team) + 1```<br>
+```(2 * rating).get_value(team) == 2 * rating.get_value(team)```<br>
+```(rating1 - rating2).get_value(team) == rating1.get_value(team) - rating2.get_value(team)```
 
 This can be used to create new ratings that are combinations of existing ratings. For example, it may be useful in a rating system to create simple ratings, then combine and transform these into more complex ratings, without having to do so across all teams. It may also be useful to modify and/or combine ratings from different rating systems.
 
-[`Rating`](#ratingsystems.core.model.rating.Rating) objects with a name will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name of the [`Rating`](#ratingsystems.core.model.rating.Rating) object.
-    ```python
-    named_rating = Rating(data, games, name="abc")
-    (rating + 1).abc == named_rating
-    ```
+[`Rating`](#ratingsystems.core.model.rating.Rating) objects with a name will be accessible in the resulting [`Rating`](#ratingsystems.core.model.rating.Rating) object via a property based on the name of the [`Rating`](#ratingsystems.core.model.rating.Rating) object.<br>
+```named\_rating = Rating(data, games, name="abc")```<br>
+```(named_rating + 1).abc == named_rating```
 
 The following useful operations can also be achieved using other operators.
 
-You can add or change the name of a [`Rating`](#ratingsystems.core.model.rating.Rating) object using the modulo operator (%)
-    ```python
-    rating = (rating1 + rating2) % "new_name"
-    ```
+You can add or change the name of a [`Rating`](#ratingsystems.core.model.rating.Rating) object using the modulo operator (%)<br>
+```rating = (rating1 + rating2) % "new_name"```<br>
 This can be especially useful when combined with the arithmetic operators to give names to the new ratings you're creating.
 
-You can add a [`Rating`](#ratingsystems.core.model.rating.Rating) object as a sub rating of another [`Rating`](#ratingsystems.core.model.rating.Rating) object using the left shift operator (<<)
-    ```python
-    rating = (rating1 + rating2) << sub_rating
-    ```
+You can add a [`Rating`](#ratingsystems.core.model.rating.Rating) object as a sub rating of another [`Rating`](#ratingsystems.core.model.rating.Rating) object using the left shift operator (<<)<br>
+```rating = (rating1 + rating2) << sub_rating```<br>
 This can be useful to add additional ratings that weren't used in calculating your rating. (Note: the sub rating must have a name, otherwise this operation will fail) 
 
-You can cast the ratings of a [`Rating`](#ratingsystems.core.model.rating.Rating) object to a different [`Stat`](#ratingsystems.core.model.stat.Stat) class using the or operator (|)
-    ```python
-    rating = (rating1 + rating2) | [`Stat`](#ratingsystems.core.model.stat.Stat)
-    ```
+You can cast the ratings of a [`Rating`](#ratingsystems.core.model.rating.Rating) object to a different [`Stat`](#ratingsystems.core.model.stat.Stat) class using the or operator (|)<br>
+```> rating = (rating1 + rating2) | Stat```<br>
 This can be useful when you are combining two ratings with one [`Stat`](#ratingsystems.core.model.stat.Stat) type, but wish for the resulting rating to be a different [`Stat`](#ratingsystems.core.model.stat.Stat) type.
 
 <a id="ratingsystems.core.model.rating.Rating.get"></a>
@@ -1230,7 +1221,7 @@ Classes that inherit from [`Predictor`](#ratingsystems.core.predictor.Predictor)
 
 <a id="ratingsystems.core.predictor.Predictor.name"></a>
 
-### name: `str`
+### name
 
 (str) Name of predictor; will be used by the CLI, so ideally this is short
 
@@ -1278,7 +1269,7 @@ class RatingDifferencePredictor(Predictor)
 
 <a id="ratingsystems.core.predictor.RatingDifferencePredictor.name"></a>
 
-### name: `str`
+### name
 
 <a id="ratingsystems.core.predictor.RatingDifferencePredictor.predict"></a>
 
@@ -1319,7 +1310,7 @@ Classes that inherit from [`RatingSystem`](#ratingsystems.core.rating_system.Rat
 
 <a id="ratingsystems.core.rating_system.RatingSystem.name"></a>
 
-### name: `str`
+### name
 
 (str) Name of the rating system; will be used by the CLI, so ideally this is short
 

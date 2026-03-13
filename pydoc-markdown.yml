@@ -4,11 +4,18 @@ loaders:
       - src
     packages:
       - ratingsystems
+    # modules:
+    #   - ratingsystems.core.rating_system.RatingSystem
 
 processors:
   - type: filter
     expression: not name.startswith("_")
     documented_only: true
+  - type: filter
+    expression: "\"Indirection\" not in str(type(obj))"
+  # - type: filter
+  #   expression: print(obj)
+    # documented_only: true
   - type: smart
   - type: crossref
 
@@ -17,3 +24,4 @@ renderer:
   filename: docs.md
   render_toc: true
   descriptive_class_title: False
+  # resolve_reference: True

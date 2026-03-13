@@ -1,7 +1,7 @@
 """
 Defines a rating system, which can be used to create a rating of teams.
 
-A rating system can be used by calling the #RatingSystem.rate function with a list of #Game. This will return a #Rating of the teams.
+A rating system can be used by calling the #rate function with a list of #Game. This will return a #Rating of the teams.
 
 This is also exposed via the CLI command `rate`, which can be called like this:
 ```bash

@@ -1,7 +1,7 @@
 """
 Defines a data source, which can be used to fetch data for a sport.
 
-A data source can be used by calling the #DataSource.fetch function. This will return a list of #Game.
+A data source can be used by calling the #fetch function. This will return a list of #Game.
 
 This is also exposed via the CLI command `fetch`, which can be called like this:
 ```bash

@@ -1,7 +1,7 @@
 """
 Defines a predictor, which can be used to predict a matchup between two teams.
 
-A predictor can be used by calling the #Predictor.predict function with a team and an opponent. This will return a #Prediction of the matchup.
+A predictor can be used by calling the #predict function with a team and an opponent. This will return a #Prediction of the matchup.
 
 This is also exposed via the CLI command `predict`, which can be called like this:
 ```bash

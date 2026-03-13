@@ -1012,6 +1012,7 @@ class Rating()
 
 Class representing a rating of teams. This class also provides many helpful functions for interacting with the ratings.
 
+<pre>
 Parameters:
     rating (dict[str, [`Stat`](#ratingsystems.core.model.stat.Stat)]): mapping of team names to ratings, represented by a [`Stat`](#ratingsystems.core.model.stat.Stat) object<br>
     games (list[Game]): list of games used to generate this rating<br>
@@ -1051,6 +1052,7 @@ These operators also work on [`Rating`](#ratingsystems.core.model.rating.Rating)
             ex.<br>
                 rating = (rating1 + rating2) | [`Stat`](#ratingsystems.core.model.stat.Stat)<br>
         This can be useful when you are combining two ratings with one [`Stat`](#ratingsystems.core.model.stat.Stat) type, but wish for the resulting rating to be a different [`Stat`](#ratingsystems.core.model.stat.Stat) type.
+</pre>
 
 <a id="ratingsystems.core.model.rating.Rating.get"></a>
 

@@ -18,6 +18,7 @@ class Rating():
     """
     Class representing a rating of teams. This class also provides many helpful functions for interacting with the ratings.
 
+    <pre>
     Parameters:
         rating (dict[str, #Stat]): mapping of team names to ratings, represented by a #Stat object<br>
         games (list[Game]): list of games used to generate this rating<br>
@@ -57,6 +58,7 @@ class Rating():
                 ex.<br>
                     rating = (rating1 + rating2) | #Stat<br>
             This can be useful when you are combining two ratings with one #Stat type, but wish for the resulting rating to be a different #Stat type.
+    </pre>
     """
 
     def __init__(self, rating: Union[dict[str, Stat], Any], games: list[Game], name: str = None, stat_class: Type[Stat] = None, **auxilliary_data):

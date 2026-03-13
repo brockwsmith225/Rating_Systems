@@ -9,6 +9,8 @@ class ReferenceResolver(Resolver):
         self.references = {}
 
     def resolve_ref(self, scope, ref):
+        print(ref)
+        print(self.references[ref])
         return self.references.get(ref)
 
 resolver = ReferenceResolver()
@@ -31,4 +33,4 @@ for module in modules:
 
 processor.process(modules, resolver)
 
-# print(renderer.render_to_string(modules))
+renderer.render(modules)

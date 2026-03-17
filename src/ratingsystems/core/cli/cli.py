@@ -10,7 +10,7 @@ import click
 from click_shell import shell
 from click.core import ParameterSource
 
-from ratingsystems.core import DataSource, Predictor, RatingDifferencePredictor, RatingSystem
+from ratingsystems.core import AggregatePredictor, DataSource, Predictor, RatingDifferencePredictor, RatingSystem
 from ratingsystems.core.cli.helpers import KeyValuePair, SelectChoice, combine_key_value_pairs, filter_options
 from ratingsystems.core.model import Rating
 from ratingsystems.core.util import center, ljustify, rjustify
@@ -20,7 +20,7 @@ from ratingsystems.core.util import center, ljustify, rjustify
 year = click.option("--year", "-y", type=int, default=datetime.now().year, help="Year of data to use")
 datasource = click.option("--data", "-d", "datasource", type=SelectChoice({}, case_sensitive=False), help="Select a data source from those you've installed")
 ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), multiple=True, default=(), help="Select a rating system from those you've installed, can be set multiple times to combine rating systems")
-predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.name: RatingDifferencePredictor}, case_sensitive=False), default=RatingDifferencePredictor.name, help="Select a predictor from those you've installed")
+predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.name: RatingDifferencePredictor}, case_sensitive=False), multiple=True, default=(RatingDifferencePredictor.name,), help="Select a predictor from those you've installed")
 options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="Set an option to be passed to any plugin that accepts it, can be set multiple times, see specific plugin documentation for what options are available")
 
 
@@ -311,7 +311,8 @@ def predict(
 
     rating = _create_rating(context, ratingsystem, options, games, load_rating=True)
 
-    prediction = _create_prediction(context, predictor, options, rating, team, opponent)
+    pred = _create_predictor(context, predictor, options, rating)
+    prediction = _create_prediction(context, pred, team, opponent)
 
     click.echo(prediction)
 
@@ -330,7 +331,7 @@ def bracket(
     year: int = datetime.now().year,
     datasource: Optional[Type[DataSource]] = None,
     ratingsystem: Tuple[Type[RatingSystem]] = (),
-    predictor: Optional[Type[Predictor]] = None,
+    predictor: Tuple[Type[Predictor]] = (),
     options: dict[str, Any] = {},
     display: bool = False,
     pretty: bool = False,
@@ -343,14 +344,14 @@ def bracket(
 
     rating = _create_rating(context, ratingsystem, options, games, load_rating=True)
 
-    p = predictor(rating, **filter_options(options, predictor))
+    p = _create_predictor(context, predictor, options, rating)
 
     # Try to evaluate the bracket
-    try:
-        bracket.evaluate(p)
-    except Exception as e:
-        click.echo(f"Error in evaluating the bracket: {e}")
-        context.exit(1)
+    # try:
+    bracket.evaluate(p)
+    # except Exception as e:
+    #     click.echo(f"Error in evaluating the bracket: {e}")
+    #     context.exit(1)
 
     if display:
         click.echo(bracket)
@@ -426,16 +427,25 @@ def _create_rating(context: click.Context, ratingsystems: Tuple[Type[RatingSyste
     return (sum(ratings) / len(ratings)) % "aggregate"
 
 
-def _create_prediction(context: click.Context, predictor: Type[Predictor], options: dict[str, Any], rating: Rating, team: str, opponent: str) -> Prediction:
-    if predictor is None:
+def _create_predictor(context: click.Context, predictors: Tuple[Type[Predictor]], options: dict[str, Any], rating: Rating) -> Prediction:
+    if len(predictors) == 0:
         click.echo("Input Error: must specify a predictor (-p, --predictor)")
         context.exit(1)
 
-    p = predictor(rating, **filter_options(options, predictor))
+    preds = []
 
+    for predictor in predictors:
+        preds.append(predictor(rating, **filter_options(options, predictor)))
+
+    predictor = AggregatePredictor(*preds)
+
+    return predictor
+
+
+def _create_prediction(context: click.Context, predictor: Predictor, team: str, opponent: str) -> Prediction:
     # Try to predict a matchup between team and opponent
     try:
-        prediction = p.predict(team, opponent)
+        prediction = predictor.predict(team, opponent)
     except Exception as e:
         click.echo(f"Error in predicting {team} vs {opponent} for {predictor.name}: {e}")
         context.exit(1)

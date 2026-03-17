@@ -343,7 +343,7 @@ def bracket(context: click.Context,
             year: int = datetime.now().year,
             datasource: Optional[Type[DataSource]] = None,
             ratingsystem: Tuple[Type[RatingSystem]] = (),
-            predictor: Optional[Type[Predictor]] = None,
+            predictor: Tuple[Type[Predictor]] = (),
             options: dict[str, Any] = {},
             display: bool = False,
             pretty: bool = False)
@@ -672,7 +672,7 @@ Class representing a bracket. This class also provides the [`Bracket.evaluate`](
 ### depth
 
 ```python
-@property
+@cached_property
 def depth() -> int
 ```
 
@@ -683,7 +683,7 @@ Property giving the depth of this point in the bracket.
 ### teams
 
 ```python
-@property
+@cached_property
 def teams() -> list[str]
 ```
 
@@ -708,7 +708,7 @@ Evaluates the bracket to determine the odds for each team to reach each round, u
 ### predicted\_team
 
 ```python
-@property
+@cached_property
 def predicted_team() -> Optional[str]
 ```
 
@@ -719,7 +719,7 @@ Property giving the team with the best odds to reach this point in the bracket. 
 ### full\_odds
 
 ```python
-@property
+@cached_property
 def full_odds() -> Optional[dict[str, tuple[str, int, list[float]]]]
 ```
 
@@ -1150,7 +1150,7 @@ Get the rank of a team by rating.
 ### confidence\_interval
 
 ```python
-@property
+@cached_property
 def confidence_interval() -> float
 ```
 
@@ -1161,7 +1161,7 @@ Property reprenting the confidence interval of the rating. Calculated as the sta
 ### mean
 
 ```python
-@property
+@cached_property
 def mean() -> float
 ```
 
@@ -1172,7 +1172,7 @@ Property reprenting the mean of the rating.
 ### stdev
 
 ```python
-@property
+@cached_property
 def stdev() -> float
 ```
 
@@ -1183,7 +1183,7 @@ Property reprenting the standard deviation of the rating.
 ### ranking
 
 ```python
-@property
+@cached_property
 def ranking() -> dict[str, int]
 ```
 

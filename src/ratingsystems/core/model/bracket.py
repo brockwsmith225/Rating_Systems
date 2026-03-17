@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Callable, Optional, Self, Union
 
 from ratingsystems.core.predictor import Predictor
@@ -28,7 +29,7 @@ class Bracket:
     odds: dict[str, float] = field(default=None)
     "(dict[str, float]) Mapping of teams in the bracket to the odds they make it to this point in the bracket"
 
-    @property
+    @cached_property
     def depth(self) -> int:
         """
         Property giving the depth of this point in the bracket.
@@ -46,7 +47,7 @@ class Bracket:
                 depth = max(1 + self.subbracket_2.depth, depth)
         return depth
 
-    @property
+    @cached_property
     def teams(self) -> list[str]:
         """
         Property giving a list of teams in the bracket.
@@ -98,7 +99,7 @@ class Bracket:
                     self.odds[team_1] += game_odds * self.subbracket_1.odds[team_1] * self.subbracket_2.odds[team_2]
                     self.odds[team_2] += (1.0 - game_odds) * self.subbracket_1.odds[team_1] * self.subbracket_2.odds[team_2]
 
-    @property
+    @cached_property
     def predicted_team(self) -> Optional[str]:
         """
         Property giving the team with the best odds to reach this point in the bracket. Will always return None until #Bracket.evaluate is run.
@@ -109,7 +110,7 @@ class Bracket:
         v = list(self.odds.values())
         return k[v.index(max(v))]
 
-    @property
+    @cached_property
     def full_odds(self) -> Optional[dict[str, tuple[str, int, list[float]]]]:
         """
         Property giving the full odds to this point in the bracket. Will always return None until #Bracket.evaluate is run.

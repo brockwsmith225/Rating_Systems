@@ -1,6 +1,7 @@
 import math
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from functools import cached_property
 from numbers import Number
 from statistics import stdev
 from typing import Any, Optional, Self, Type, Union
@@ -65,12 +66,6 @@ class Rating():
         self.games = games
 
         self._stat_class = stat_class
-
-        self._points = None
-        self._confidence_interval = None
-        self._mean = None
-        self._stdev = None
-        self._ranking = None
         self._reverse_sort = reverse_sort
 
         self._sub_ratings = {}
@@ -138,6 +133,8 @@ class Rating():
         """
         if self.get_value(team) is None:
             return None
+        if self.stdev == 0:
+            return 0
         return (self.get_value(team) - self.mean) / self.stdev
 
     def get_team(self, team: str) -> Optional[TeamRating]:
@@ -173,19 +170,16 @@ class Rating():
         """
         return self.ranking.get(team)
 
-    @property
+    @cached_property
     def confidence_interval(self) -> float:
         """
         Property reprenting the confidence interval of the rating. Calculated as the standard deviation of the difference between the rating difference and the margin of victory for each game. Useful for creating odds from a predicted line or a line from predicted odds.
         """
-        if self._confidence_interval is not None:
-            return self._confidence_interval
         if not self.games:
             return None
-        self._confidence_interval = stdev([(self.get_value(game.home_team) - self.get_value(game.away_team)) - (game.home_points - game.away_points) for game in self.games])
-        return self._confidence_interval
+        return stdev([(self.get_value(game.home_team) - self.get_value(game.away_team)) - (game.home_points - game.away_points) for game in self.games])
 
-    @property
+    @cached_property
     def mean(self) -> float:
         """
         Property reprenting the mean of the rating.
@@ -193,32 +187,25 @@ class Rating():
         if self._mean is not None:
             return self._mean
         ratings_values = [team.rating.value for team in self]
-        self._mean = sum(ratings_values) / len(ratings_values)
-        return self._mean
+        return sum(ratings_values) / len(ratings_values)
 
-    @property
+    @cached_property
     def stdev(self) -> float:
         """
         Property reprenting the standard deviation of the rating.
         """
-        if self._stdev is not None:
-            return self._stdev
         ratings_values = [team.rating.value for team in self]
-        self._stdev = math.sqrt(sum([pow(v - self.mean, 2) for v in ratings_values]) / len(ratings_values))
-        return self._stdev
+        return math.sqrt(sum([pow(v - self.mean, 2) for v in ratings_values]) / len(ratings_values))
 
-    @property
+    @cached_property
     def ranking(self) -> dict[str, int]:
         """
         Property reprenting rankings of all teams in the rating.
         """
-        if not self._ranking:
-            ranking = sorted(list(iter(self)), key=lambda t: t.rating.value)
-            if not self._reverse_sort:
-                ranking = list(reversed(ranking))
-            self._ranking = {team.name: r + 1 for r, team in enumerate(ranking)}
-
-        return self._ranking
+        ranking = sorted(list(iter(self)), key=lambda t: t.rating.value)
+        if not self._reverse_sort:
+            ranking = list(reversed(ranking))
+        return {team.name: r + 1 for r, team in enumerate(ranking)}
 
     def __iter__(self) -> Iterable[TeamRating]:
         team_ratings = []

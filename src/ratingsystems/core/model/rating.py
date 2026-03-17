@@ -184,8 +184,6 @@ class Rating():
         """
         Property reprenting the mean of the rating.
         """
-        if self._mean is not None:
-            return self._mean
         ratings_values = [team.rating.value for team in self]
         return sum(ratings_values) / len(ratings_values)
 

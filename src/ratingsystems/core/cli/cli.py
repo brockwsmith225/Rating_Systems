@@ -412,11 +412,11 @@ def _create_rating(context: click.Context, ratingsystems: Tuple[Type[RatingSyste
 
         rs = ratingsystem(**filter_options(options, ratingsystem))
 
-        try:
-            ratings.append(rs.rate(games))
-        except Exception as e:
-            click.echo(f"Error in creating rating for {ratingsystem.name}: {e}")
-            context.exit(1)
+        # try:
+        ratings.append(rs.rate(games))
+        # except Exception as e:
+        #     click.echo(f"Error in creating rating for {ratingsystem.name}: {e}")
+        #     context.exit(1)
 
         if save_rating:
             # Store rating for shell mode

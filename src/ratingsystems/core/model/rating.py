@@ -76,20 +76,20 @@ class Rating():
         self._sub_ratings = {}
 
         if isinstance(self._rating, _Combination):
-            if isinstance(self._rating.first_rating, Rating):
-                if self._rating.first_rating.name is not None and self._rating.first_rating.name != self.name:
-                    self._sub_ratings[self._rating.first_rating.name] = self._rating.first_rating
-                    setattr(self, self._rating.first_rating.name, self._rating.first_rating)
+            if isinstance(self._rating._first_rating, Rating):
+                if self._rating._first_rating.name is not None and self._rating._first_rating.name != self.name:
+                    self._sub_ratings[self._rating._first_rating.name] = self._rating._first_rating
+                    setattr(self, self._rating._first_rating.name, self._rating._first_rating)
                 else:
-                    for name, rating in self._rating.first_rating._sub_ratings.items():
+                    for name, rating in self._rating._first_rating._sub_ratings.items():
                         self._sub_ratings[name] = rating
                         setattr(self, name, rating)
-            if isinstance(self._rating.second_rating, Rating):
-                if self._rating.second_rating.name is not None and self._rating.second_rating.name != self.name:
-                    self._sub_ratings[self._rating.second_rating.name] = self._rating.second_rating
-                    setattr(self, self._rating.second_rating.name, self._rating.second_rating)
+            if isinstance(self._rating._second_rating, Rating):
+                if self._rating._second_rating.name is not None and self._rating._second_rating.name != self.name:
+                    self._sub_ratings[self._rating._second_rating.name] = self._rating._second_rating
+                    setattr(self, self._rating._second_rating.name, self._rating._second_rating)
                 else:
-                    for name, rating in self._rating.second_rating._sub_ratings.items():
+                    for name, rating in self._rating._second_rating._sub_ratings.items():
                         self._sub_ratings[name] = rating
                         setattr(self, name, rating)
 
@@ -122,9 +122,9 @@ class Rating():
         Returns:
             float representation of the rating of the team, if team exists
         """
-        if self.get(team) is None:
+        if self._rating.get(team) is None:
             return None
-        return self.get(team).value
+        return self._rating.get(team).value
 
     def get_zscore(self, team: str) -> Optional[Number]:
         """
@@ -388,83 +388,73 @@ class _Combination(ABC):
 
     def __init__(self, first_rating: Rating, second_rating: Union[Rating, Number] = None):
         if isinstance(first_rating, Rating):
-            self.first_rating = first_rating
+            self._first_rating = first_rating
         else:
-            self.first_rating = {t: first_rating for t in second_rating.keys()}
+            self._first_rating = {t: first_rating for t in second_rating.keys()}
         if isinstance(second_rating, Rating):
-            self.second_rating = second_rating
+            self._second_rating = second_rating
         else:
-            self.second_rating = {t: second_rating for t in first_rating.keys()}
+            self._second_rating = {t: second_rating for t in first_rating.keys()}
+
+        self._rating = {t: self._get(t) for t in self.keys()}
 
     def keys(self):
-        return self.first_rating.keys() | self.second_rating.keys()
+        return self._first_rating.keys() | self._second_rating.keys()
+
+    def values(self) -> list[Stat]:
+        return self._rating.values()
+
+    def get(self, team: str) -> Stat:
+        return self._rating.get(team)
 
     @abstractmethod
-    def get(self, team: str) -> Stat:
+    def _get(self, team: str) -> Stat:
         raise NotImplementedError()
 
 
 class _Add(_Combination):
 
-    def get(self, team: str) -> Optional[Stat]:
-        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+    def _get(self, team: str) -> Optional[Stat]:
+        if self._first_rating.get(team) is None or self._second_rating.get(team) is None:
             return None
-        return self.first_rating.get(team) + self.second_rating.get(team)
-
-    def values(self) -> list[Stat]:
-        return [v1 + v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+        return self._first_rating.get(team) + self._second_rating.get(team)
 
 
 class _Subtract(_Combination):
 
-    def get(self, team: str) -> Optional[Stat]:
-        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+    def _get(self, team: str) -> Optional[Stat]:
+        if self._first_rating.get(team) is None or self._second_rating.get(team) is None:
             return None
-        return self.first_rating.get(team) - self.second_rating.get(team)
-
-    def values(self) -> list[Stat]:
-        return [v1 - v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+        return self._first_rating.get(team) - self._second_rating.get(team)
 
 
 class _Multiply(_Combination):
 
-    def get(self, team: str) -> Optional[Stat]:
-        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+    def _get(self, team: str) -> Optional[Stat]:
+        if self._first_rating.get(team) is None or self._second_rating.get(team) is None:
             return None
-        return self.first_rating.get(team) * self.second_rating.get(team)
-
-    def values(self) -> list[Stat]:
-        return [v1 * v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+        return self._first_rating.get(team) * self._second_rating.get(team)
 
 
 class _Divide(_Combination):
 
-    def get(self, team: str) -> Stat:
-        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+    def _get(self, team: str) -> Stat:
+        if self._first_rating.get(team) is None or self._second_rating.get(team) is None:
             return None
-        return self.first_rating.get(team) / self.second_rating.get(team)
-
-    def values(self) -> list[Stat]:
-        return [v1 / v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+        return self._first_rating.get(team) / self._second_rating.get(team)
 
 
 class _Pow(_Combination):
 
-    def get(self, team: str) -> Optional[Stat]:
-        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+    def _get(self, team: str) -> Optional[Stat]:
+        if self._first_rating.get(team) is None or self._second_rating.get(team) is None:
             return None
-        return self.first_rating.get(team) ** self.second_rating.get(team)
-
-    def values(self) -> list[Stat]:
-        return [v1 ** v2 for v1, v2 in zip(self.first_rating.values(), self.second_rating.values())]
+        return self._first_rating.get(team) ** self._second_rating.get(team)
 
 
 class _AbsoluteValue(_Combination):
 
-    def get(self, team: str) -> Optional[Stat]:
-        if self.first_rating.get(team) is None or self.second_rating.get(team) is None:
+    def _get(self, team: str) -> Optional[Stat]:
+        if self._first_rating.get(team) is None:
             return None
-        return abs(self.first_rating.get(team))
-
-    def values(self) -> list[Stat]:
-        return [abs(v) for v in self.first_rating.values()]
+        return abs(self._first_rating.get(team))

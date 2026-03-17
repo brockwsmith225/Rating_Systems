@@ -672,7 +672,7 @@ Class representing a bracket. This class also provides the [`Bracket.evaluate`](
 ### depth
 
 ```python
-@cached_property
+@property
 def depth() -> int
 ```
 
@@ -683,7 +683,7 @@ Property giving the depth of this point in the bracket.
 ### teams
 
 ```python
-@cached_property
+@property
 def teams() -> list[str]
 ```
 
@@ -708,7 +708,7 @@ Evaluates the bracket to determine the odds for each team to reach each round, u
 ### predicted\_team
 
 ```python
-@cached_property
+@property
 def predicted_team() -> Optional[str]
 ```
 
@@ -719,7 +719,7 @@ Property giving the team with the best odds to reach this point in the bracket. 
 ### full\_odds
 
 ```python
-@cached_property
+@property
 def full_odds() -> Optional[dict[str, tuple[str, int, list[float]]]]
 ```
 

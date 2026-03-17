@@ -347,11 +347,11 @@ def bracket(
     p = _create_predictor(context, predictor, options, rating)
 
     # Try to evaluate the bracket
-    # try:
-    bracket.evaluate(p)
-    # except Exception as e:
-    #     click.echo(f"Error in evaluating the bracket: {e}")
-    #     context.exit(1)
+    try:
+        bracket.evaluate(p)
+    except Exception as e:
+        click.echo(f"Error in evaluating the bracket: {e}")
+        context.exit(1)
 
     if display:
         click.echo(bracket)

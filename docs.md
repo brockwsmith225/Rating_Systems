@@ -188,7 +188,7 @@ def cli(context: click.Context,
         year: int = datetime.now().year,
         datasource: Optional[Type[DataSource]] = None,
         ratingsystem: Tuple[Type[RatingSystem]] = (),
-        predictor: Optional[Type[Predictor]] = None,
+        predictor: Tuple[Type[Predictor]] = (),
         options: dict[str, Any] = {})
 ```
 
@@ -210,7 +210,7 @@ def config(context: click.Context,
            year: int = datetime.now().year,
            datasource: Optional[DataSource] = None,
            ratingsystem: Tuple[Type[RatingSystem]] = (),
-           predictor: Optional[Predictor] = None,
+           predictor: Tuple[Type[Predictor]] = (),
            options: dict[str, Any] = {})
 ```
 
@@ -307,7 +307,7 @@ def predict(context: click.Context,
             year: int = datetime.now().year,
             datasource: Optional[Type[DataSource]] = None,
             ratingsystem: Tuple[Type[RatingSystem]] = (),
-            predictor: Optional[Type[Predictor]] = None,
+            predictor: Tuple[Type[Predictor]] = (),
             options: dict[str, Any] = {})
 ```
 

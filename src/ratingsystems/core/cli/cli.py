@@ -20,7 +20,7 @@ from ratingsystems.core.util import center, ljustify, rjustify
 year = click.option("--year", "-y", type=int, default=datetime.now().year, help="Year of data to use")
 datasource = click.option("--data", "-d", "datasource", type=SelectChoice({}, case_sensitive=False), help="Select a data source from those you've installed")
 ratingsystem = click.option("--rating", "-r", "ratingsystem", type=SelectChoice({}, case_sensitive=False), multiple=True, default=(), help="Select a rating system from those you've installed, can be set multiple times to combine rating systems")
-predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.name: RatingDifferencePredictor}, case_sensitive=False), multiple=True, default=(RatingDifferencePredictor.name,), help="Select a predictor from those you've installed")
+predictor = click.option("--predictor", "-p", "predictor", type=SelectChoice({RatingDifferencePredictor.name: RatingDifferencePredictor}, case_sensitive=False), multiple=True, default=(RatingDifferencePredictor.name,), help="Select a predictor from those you've installed, can be set multiple times to aggregate predictors")
 options = click.option("--opt", "-o", "options", multiple=True, type=KeyValuePair(), default={}, callback=combine_key_value_pairs, help="Set an option to be passed to any plugin that accepts it, can be set multiple times, see specific plugin documentation for what options are available")
 
 
@@ -52,7 +52,7 @@ def cli(
     year: int = datetime.now().year,
     datasource: Optional[Type[DataSource]] = None,
     ratingsystem: Tuple[Type[RatingSystem]] = (),
-    predictor: Optional[Type[Predictor]] = None,
+    predictor: Tuple[Type[Predictor]] = (),
     options: dict[str, Any] = {},
 ):
     """
@@ -78,7 +78,7 @@ def config(
     year: int = datetime.now().year,
     datasource: Optional[DataSource] = None,
     ratingsystem: Tuple[Type[RatingSystem]] = (),
-    predictor: Optional[Predictor] = None,
+    predictor: Tuple[Type[Predictor]] = (),
     options: dict[str, Any] = {},
 ):
     """
@@ -297,7 +297,7 @@ def predict(
     year: int = datetime.now().year,
     datasource: Optional[Type[DataSource]] = None,
     ratingsystem: Tuple[Type[RatingSystem]] = (),
-    predictor: Optional[Type[Predictor]] = None,
+    predictor: Tuple[Type[Predictor]] = (),
     options: dict[str, Any] = {},
 ):
     """

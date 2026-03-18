@@ -345,6 +345,22 @@ Used to predict a matchup between TEAM and OPPONENT.
               is_flag=True,
               default=False,
               help="Weight bracket odds by the team's seed")
+@click.option(
+    "--pick/--no-pick",
+    type=bool,
+    is_flag=True,
+    default=False,
+    help=
+    "Make a pick for the bracket at each matchup, rather than cumulating the odds for each team through the whole bracket"
+)
+@click.option(
+    "--simulate/--no-simulate",
+    type=bool,
+    is_flag=True,
+    default=False,
+    help=
+    "Simulate each matchup, rather than cumulating the odds for each team through the whole bracket"
+)
 @click.pass_context
 def bracket(context: click.Context,
             year: int = datetime.now().year,
@@ -354,7 +370,9 @@ def bracket(context: click.Context,
             options: dict[str, Any] = {},
             display: bool = False,
             pretty: bool = False,
-            seed_weight: bool = False)
+            seed_weight: bool = False,
+            pick: bool = False,
+            simulate: bool = False)
 ```
 
 Used to produce odds for the results of a bracket.
@@ -710,7 +728,9 @@ Property giving a list of teams in the bracket.
 ```python
 def evaluate(predictor: Predictor,
              results: dict[str, int] = {},
-             weight_by_seed: bool = False)
+             weight_by_seed: bool = False,
+             pick: bool = False,
+             simulate: bool = False)
 ```
 
 Evaluates the bracket to determine the odds for each team to reach each round, using a [`Predictor`](#ratingsystems.core.predictor.Predictor). These odds are then stored in this bracket.

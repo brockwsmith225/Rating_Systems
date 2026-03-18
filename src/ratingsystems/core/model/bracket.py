@@ -1,3 +1,4 @@
+from numpy.random import choice
 from dataclasses import dataclass, field
 from typing import Callable, Optional, Self, Union
 
@@ -64,7 +65,7 @@ class Bracket:
             return self.subbracket_1.teams + self.subbracket_2.teams
         return teams
 
-    def evaluate(self, predictor: Predictor, results: dict[str, int] = {}, weight_by_seed: bool = False):
+    def evaluate(self, predictor: Predictor, results: dict[str, int] = {}, weight_by_seed: bool = False, pick: bool = False, simulate: bool = False):
         """
         Evaluates the bracket to determine the odds for each team to reach each round, using a #Predictor. These odds are then stored in this bracket.
 
@@ -91,8 +92,8 @@ class Bracket:
                 self.odds[self.subbracket_1] = game_odds
                 self.odds[self.subbracket_2] = 1.0 - game_odds
         else:
-            self.subbracket_1.evaluate(predictor, results, weight_by_seed=weight_by_seed)
-            self.subbracket_2.evaluate(predictor, results, weight_by_seed=weight_by_seed)
+            self.subbracket_1.evaluate(predictor, results, weight_by_seed=weight_by_seed, pick=pick, simulate=simulate)
+            self.subbracket_2.evaluate(predictor, results, weight_by_seed=weight_by_seed, pick=pick, simulate=simulate)
             for team_1 in self.subbracket_1.teams:
                 self.odds[team_1] = 0.0
                 for team_2 in self.subbracket_2.teams:
@@ -113,6 +114,13 @@ class Bracket:
                             game_odds = game_odds * weight_1 / (game_odds * weight_1 + (1 - game_odds) * weight_2)
                     self.odds[team_1] += game_odds * self.subbracket_1.odds[team_1] * self.subbracket_2.odds[team_2]
                     self.odds[team_2] += (1.0 - game_odds) * self.subbracket_1.odds[team_1] * self.subbracket_2.odds[team_2]
+
+        if pick:
+            winner = self.predicted_team
+            self.odds = {t: 1.0 if t == winner else 0.0 for t in self.odds}
+        elif simulate:
+            winner = choice(list(self.odds.keys()), 1, p=list(self.odds.values()))
+            self.odds = {t: 1.0 if t == winner else 0.0 for t in self.odds}
 
     @property
     def predicted_team(self) -> Optional[str]:
@@ -176,8 +184,8 @@ class Bracket:
     def __str__(self) -> str:
         if self.depth == 1:
             if self.subbracket_2 is None:
-                return f"{''.ljust(21)}\n{''.ljust(21)}\n{''.ljust(21)}"
-            return f"{str(self.seed_1).rjust(2, ' ')} {self.subbracket_1.ljust(17, '-')}|\n{''.ljust(20)}|\n{str(self.seed_2).rjust(2, ' ')} {self.subbracket_2.ljust(17, '-')}|"
+                return f"{''.ljust(21)}\n{''.ljust(21)}{str(self.seed_1).rjust(2, ' ')} {self.predicted_team.ljust(17, '-')}\n{''.ljust(21)}"
+            return f"{str(self.seed_1).rjust(2, ' ')} {self.subbracket_1.ljust(17, '-')}|\n{''.ljust(20)}|{self.predicted_team.ljust(20, '-')}\n{str(self.seed_2).rjust(2, ' ')} {self.subbracket_2.ljust(17, '-')}|"
         else:
             subbracket_1_str = str(self.subbracket_1).split("\n")
             subbracket_2_str = str(self.subbracket_2).split("\n")
@@ -186,26 +194,16 @@ class Bracket:
 
             for i in range(middle):
                 subbracket_1_str[i] += f"{''.ljust(21)}"
-            if self.subbracket_1.subbracket_2 is None:
-                subbracket_1_str[middle] += f"{self.subbracket_1.subbracket_1.ljust(20, '-')}|"
-            elif self.subbracket_1.predicted_team:
-                subbracket_1_str[middle] += f"{self.subbracket_1.predicted_team.ljust(20, '-')}|"
-            else:
-                subbracket_1_str[middle] += f"{''.ljust(20, '-')}|"
+            subbracket_1_str[middle] += "|"
             for i in range(middle + 1, len(subbracket_1_str)):
                 subbracket_1_str[i] += f"{''.ljust(20)}|"
 
             for i in range(pow(2, self.depth - 1)):
-                subbracket_1_str.append(f"{''.ljust(21 * self.depth - 1)}|")
+                subbracket_1_str.append(f"{''.ljust(21 * self.depth - 1)}|{self.predicted_team.ljust(20, '-') if i == pow(2, self.depth - 2) else ''}")
 
             for i in range(middle):
                 subbracket_2_str[i] += f"{''.ljust(20)}|"
-            if self.subbracket_2.subbracket_2 is None:
-                subbracket_2_str[middle] += f"{self.subbracket_2.subbracket_1.ljust(20, '-')}|"
-            elif self.subbracket_2.predicted_team:
-                subbracket_2_str[middle] += f"{self.subbracket_2.predicted_team.ljust(20, '-')}|"
-            else:
-                subbracket_2_str[middle] += f"{''.ljust(20, '-')}|"
+            subbracket_2_str[middle] += "|"
             for i in range(middle + 1, len(subbracket_2_str)):
                 subbracket_2_str[i] += f"{''.ljust(21)}"
 

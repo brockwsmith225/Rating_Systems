@@ -326,6 +326,8 @@ def predict(
 @click.option("--display/--no-display", type=bool, is_flag=True, default=False, help="Display bracket with picks instead of a table of odds")
 @click.option("--pretty/--no-pretty", type=bool, is_flag=True, default=False, help="Pretty print bracket odds")
 @click.option("--seed-weight/--no-seed-weight", type=bool, is_flag=True, default=False, help="Weight bracket odds by the team's seed")
+@click.option("--pick/--no-pick", type=bool, is_flag=True, default=False, help="Make a pick for the bracket at each matchup, rather than cumulating the odds for each team through the whole bracket")
+@click.option("--simulate/--no-simulate", type=bool, is_flag=True, default=False, help="Simulate each matchup, rather than cumulating the odds for each team through the whole bracket")
 @click.pass_context
 def bracket(
     context: click.Context,
@@ -337,6 +339,8 @@ def bracket(
     display: bool = False,
     pretty: bool = False,
     seed_weight: bool = False,
+    pick: bool = False,
+    simulate: bool = False,
 ):
     """
     Used to produce odds for the results of a bracket.
@@ -350,7 +354,7 @@ def bracket(
 
     # Try to evaluate the bracket
     try:
-        bracket.evaluate(p, weight_by_seed=seed_weight)
+        bracket.evaluate(p, weight_by_seed=seed_weight, pick=pick, simulate=simulate)
     except Exception as e:
         raise e
         click.echo(f"Error in evaluating the bracket: {e}")

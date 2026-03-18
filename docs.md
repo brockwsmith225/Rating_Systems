@@ -49,11 +49,13 @@
     * [seed\_2](#ratingsystems.core.model.bracket.Bracket.seed_2)
     * [bracket\_name](#ratingsystems.core.model.bracket.Bracket.bracket_name)
     * [odds](#ratingsystems.core.model.bracket.Bracket.odds)
+    * [results](#ratingsystems.core.model.bracket.Bracket.results)
     * [depth](#ratingsystems.core.model.bracket.Bracket.depth)
     * [teams](#ratingsystems.core.model.bracket.Bracket.teams)
     * [evaluate](#ratingsystems.core.model.bracket.Bracket.evaluate)
     * [predicted\_team](#ratingsystems.core.model.bracket.Bracket.predicted_team)
     * [full\_odds](#ratingsystems.core.model.bracket.Bracket.full_odds)
+    * [get\_seed](#ratingsystems.core.model.bracket.Bracket.get_seed)
     * [to\_file](#ratingsystems.core.model.bracket.Bracket.to_file)
     * [from\_file](#ratingsystems.core.model.bracket.Bracket.from_file)
 * [ratingsystems.core.model.game](#ratingsystems.core.model.game)
@@ -338,6 +340,11 @@ Used to predict a matchup between TEAM and OPPONENT.
               is_flag=True,
               default=False,
               help="Pretty print bracket odds")
+@click.option("--seed-weight/--no-seed-weight",
+              type=bool,
+              is_flag=True,
+              default=False,
+              help="Weight bracket odds by the team's seed")
 @click.pass_context
 def bracket(context: click.Context,
             year: int = datetime.now().year,
@@ -346,7 +353,8 @@ def bracket(context: click.Context,
             predictor: Tuple[Type[Predictor]] = (),
             options: dict[str, Any] = {},
             display: bool = False,
-            pretty: bool = False)
+            pretty: bool = False,
+            seed_weight: bool = False)
 ```
 
 Used to produce odds for the results of a bracket.
@@ -667,6 +675,12 @@ Class representing a bracket. This class also provides the [`Bracket.evaluate`](
 
 (dict[str, float]) Mapping of teams in the bracket to the odds they make it to this point in the bracket
 
+<a id="ratingsystems.core.model.bracket.Bracket.results"></a>
+
+### results
+
+(dict[str, float]) Mapping of teams in the bracket to the round they lost in
+
 <a id="ratingsystems.core.model.bracket.Bracket.depth"></a>
 
 ### depth
@@ -694,7 +708,9 @@ Property giving a list of teams in the bracket.
 ### evaluate
 
 ```python
-def evaluate(predictor: Predictor, results: dict[str, int] = {})
+def evaluate(predictor: Predictor,
+             results: dict[str, int] = {},
+             weight_by_seed: bool = False)
 ```
 
 Evaluates the bracket to determine the odds for each team to reach each round, using a [`Predictor`](#ratingsystems.core.predictor.Predictor). These odds are then stored in this bracket.
@@ -726,6 +742,14 @@ def full_odds() -> Optional[dict[str, tuple[str, int, list[float]]]]
 Property giving the full odds to this point in the bracket. Will always return None until [`Bracket.evaluate`](#ratingsystems.core.model.bracket.Bracket.evaluate) is run.
 
 This is formatted as a mapping from team names to a tuple containing in order the bracket name the team appears in, the team's seed, a list of odds for the team to reach each round.
+
+<a id="ratingsystems.core.model.bracket.Bracket.get_seed"></a>
+
+### get\_seed
+
+```python
+def get_seed(team) -> Optional[int]
+```
 
 <a id="ratingsystems.core.model.bracket.Bracket.to_file"></a>
 

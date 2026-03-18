@@ -154,7 +154,7 @@ class Rating():
             rating=self.get(team),
             wins=len([1 for game in self.games if (game.home_team == team and game.home_winner) or (game.away_team == team and game.away_winner)]) if self.games else 0,
             losses=len([1 for game in self.games if (game.home_team == team and game.away_winner) or (game.away_team == team and game.home_winner)]) if self.games else 0,
-            conference=[game.home_conference if game.home_team == team else game.away_conference for game in self.games if game.home_team == team or game.away_team == team][0],
+            conference=next(iter([game.home_conference if game.home_team == team else game.away_conference for game in self.games if game.home_team == team or game.away_team == team])),
             **{name: rating.get_team(team) for name, rating in self._sub_ratings.items()},
         )
 
@@ -206,10 +206,8 @@ class Rating():
         return {team.name: r + 1 for r, team in enumerate(ranking)}
 
     def __iter__(self) -> Iterable[TeamRating]:
-        team_ratings = []
         for team in self._rating.keys():
-            team_ratings.append(self.get_team(team))
-        return iter(team_ratings)
+            yield self.get_team(team)
 
     def keys(self) -> Iterable[str]:
         """

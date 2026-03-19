@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from functools import cached_property
 from numbers import Number
-from statistics import stdev
+from statistics import mean, stdev
 from typing import Any, Optional, Self, Type, Union
 
 from ratingsystems.core.model.team_rating import TeamRating
@@ -177,15 +177,16 @@ class Rating():
         """
         if not self.games:
             return None
-        return stdev([(self.get_value(game.home_team) - self.get_value(game.away_team)) - (game.home_points - game.away_points) for game in self.games])
+        # Changed this to be the mean MOV, I think that's more statistically soudn
+        # return stdev([(self.get_value(game.home_team) - self.get_value(game.away_team)) - (game.home_points - game.away_points) for game in self.games])
+        return mean([abs(game.home_points - game.away_points) for game in self.games])
 
     @cached_property
     def mean(self) -> float:
         """
         Property reprenting the mean of the rating.
         """
-        ratings_values = [team.rating.value for team in self]
-        return sum(ratings_values) / len(ratings_values)
+        return mean([team.rating.value for team in self])
 
     @cached_property
     def stdev(self) -> float:
